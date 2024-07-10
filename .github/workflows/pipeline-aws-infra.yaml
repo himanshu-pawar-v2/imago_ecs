@@ -71,7 +71,7 @@ jobs:
       # Initialize a new or existing Terragrunt working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terragrunt Apply
         run: |
-          cd ./accelerators-aws/environments/dev
+          cd ./infra/environments/dev
           terragrunt run-all apply --terragrunt-non-interactive
   
   # Deploy:
