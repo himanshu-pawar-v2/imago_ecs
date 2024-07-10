@@ -1,14 +1,12 @@
 name: Infrastructure deployment on AWS
+
 on:
-  push:
-    branches:
-      - sagar-*
-      # - main
-  pull_request:
-    branches:
-      # - main
-  
-  # workflow-dispatch:
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
   workflow_dispatch:
     inputs:
       prefix:
@@ -32,41 +30,31 @@ env:
   bucket_name: ${{ github.event.inputs.prefix }}-${{ github.event.inputs.service }}-${{ github.event.inputs.environment }}
   environment: ${{ github.event.inputs.environment }}
 
-# permissions:
-#   id-token: write
-#   contents: read
-
-# env:
-#   bucket_name: v2-boilerplate-ui-s3-dev
-
 jobs:
   Build:
     runs-on: ubuntu-latest
-    # if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master'
 
     steps:
       - name: Checkout code 
         uses: actions/checkout@v3
-  
-  Deploy:
-      name: 'Terragrunt Init/Plan/Apply'
-      runs-on: ubuntu-latest
 
-      steps:
-      # Checkout the repository to the GitHub Actions runner
+  Deploy:
+    name: 'Terragrunt Init/Plan/Apply'
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      # Install the latest version of Terragrunt CLI and configure the Terragrunt CLI configuration file with a Terragrunt Cloud user API token
       - name: Setup Terraform v1.7.4
-        uses: hashicorp/setup-Terraform@v1
+        uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.7.4
           terraform_wrapper: false
@@ -81,13 +69,104 @@ jobs:
         uses: autero1/action-terragrunt@v3
         with:
           terragrunt-version: 0.55.10
-          # token: ${{ secrets.AWS_CREDENTIALS_IAM_ROLE }}
 
-      # Initialize a new or existing Terragrunt working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terragrunt Apply
         env:
           BUCKET_NAME: ${{ env.bucket_name }}
           ENVIRONMENT: ${{ env.environment }}
         run: |
-          cd ./infra/environments/dev
+          cd ./accelerators-aws/environments/dev
           terragrunt run-all apply --terragrunt-non-interactive
+# name: Infrastructure deployment on AWS
+# on:
+#   push:
+#     branches:
+#       - sagar-*
+#       # - main
+#   pull_request:
+#     branches:
+#       # - main
+  
+#   # workflow-dispatch:
+#   workflow_dispatch:
+#     inputs:
+#       prefix:
+#         description: 'Prefix for the bucket'
+#         required: true
+#         default: 'v2-boilerplate'
+#       service:
+#         description: 'Service name'
+#         required: true
+#         default: 's3'
+#       environment:
+#         description: 'Environment name'
+#         required: true
+#         default: 'dev'
+
+# permissions:
+#   id-token: write
+#   contents: read
+
+# env:
+#   bucket_name: ${{ github.event.inputs.prefix }}-${{ github.event.inputs.service }}-${{ github.event.inputs.environment }}
+#   environment: ${{ github.event.inputs.environment }}
+
+# # permissions:
+# #   id-token: write
+# #   contents: read
+
+# # env:
+# #   bucket_name: v2-boilerplate-ui-s3-dev
+
+# jobs:
+#   Build:
+#     runs-on: ubuntu-latest
+#     # if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master'
+
+#     steps:
+#       - name: Checkout code 
+#         uses: actions/checkout@v3
+  
+#   Deploy:
+#       name: 'Terragrunt Init/Plan/Apply'
+#       runs-on: ubuntu-latest
+
+#       steps:
+#       # Checkout the repository to the GitHub Actions runner
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+#           aws-region: us-east-2
+
+#       # Install the latest version of Terragrunt CLI and configure the Terragrunt CLI configuration file with a Terragrunt Cloud user API token
+#       - name: Setup Terraform v1.7.4
+#         uses: hashicorp/setup-Terraform@v1
+#         with:
+#           terraform_version: 1.7.4
+#           terraform_wrapper: false
+
+#       - name: Setup Terraform version
+#         run: terraform --version
+
+#       - name: Setup Terraform wrapper path
+#         run: which terraform
+
+#       - name: Setup Terragrunt version 0.55.10
+#         uses: autero1/action-terragrunt@v3
+#         with:
+#           terragrunt-version: 0.55.10
+#           # token: ${{ secrets.AWS_CREDENTIALS_IAM_ROLE }}
+
+#       # Initialize a new or existing Terragrunt working directory by creating initial files, loading any remote state, downloading modules, etc.
+#       - name: Terragrunt Apply
+#         env:
+#           BUCKET_NAME: ${{ env.bucket_name }}
+#           ENVIRONMENT: ${{ env.environment }}
+#         run: |
+#           cd ./infra/environments/dev
+#           terragrunt run-all apply --terragrunt-non-interactive
