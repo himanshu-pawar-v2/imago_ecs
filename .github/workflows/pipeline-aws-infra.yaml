@@ -9,13 +9,35 @@ on:
       # - main
   
   # workflow-dispatch:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: 'Prefix for the bucket'
+        required: true
+        default: 'v2-boilerplate'
+      service:
+        description: 'Service name'
+        required: true
+        default: 's3'
+      environment:
+        description: 'Environment name'
+        required: true
+        default: 'dev'
 
 permissions:
   id-token: write
   contents: read
 
 env:
-  bucket_name: v2-boilerplate-ui-s3-dev
+  bucket_name: ${{ github.event.inputs.prefix }}-${{ github.event.inputs.service }}-${{ github.event.inputs.environment }}
+  environment: ${{ github.event.inputs.environment }}
+
+# permissions:
+#   id-token: write
+#   contents: read
+
+# env:
+#   bucket_name: v2-boilerplate-ui-s3-dev
 
 jobs:
   Build:
@@ -63,6 +85,9 @@ jobs:
 
       # Initialize a new or existing Terragrunt working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terragrunt Apply
+        env:
+          BUCKET_NAME: ${{ env.bucket_name }}
+          ENVIRONMENT: ${{ env.environment }}
         run: |
           cd ./infra/environments/dev
-          terragrunt run-all destroy --terragrunt-non-interactive
+          terragrunt run-all apply --terragrunt-non-interactive

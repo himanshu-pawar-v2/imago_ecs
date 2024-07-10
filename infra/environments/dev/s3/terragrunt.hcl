@@ -14,6 +14,7 @@ include "env"{
 
 inputs = {
     env = include.env.locals.env
-    bucket_name = "v2-angularjs-boilerplate"
+    bucket_name = getenv("BUCKET_NAME")
+    // bucket_name = "v2-boilerplate-ui-s3-dev"
     versioning_enabled = false
 }
