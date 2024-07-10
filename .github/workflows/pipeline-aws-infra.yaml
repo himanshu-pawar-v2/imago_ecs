@@ -35,13 +35,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     role-to-assume: ${{ secrets.AWS_CREDENTIALS_IAM_ROLE }}
-      #     role-session-name: AWSSession
-      #     aws-region: us-east-2
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -72,30 +65,4 @@ jobs:
       - name: Terragrunt Apply
         run: |
           cd ./infra/environments/dev
-          terragrunt run-all apply --terragrunt-non-interactive
-  
-  # Deploy:
-  #     runs-on: ubuntu-latest
-  #     needs: Build
-  #     steps:
-  #       - name: Configure AWS Credentials
-  #         uses: aws-actions/configure-aws-credentials@v2
-  #         with:
-  #           role-to-assume: ${{ secrets.AWS_CREDENTIALS_IAM_ROLE }}
-  #           role-session-name: AWSSession
-  #           aws-region: us-east-2
-            
-  #       - name: Check if bucket exists and delete it
-  #         run: |
-  #           if aws s3api head-bucket --bucket "$bucket_name" 2>/dev/null;
-  #           then
-  #             echo "bucket found and deleting the bucket"
-  #             aws s3 rb s3://"$bucket_name" --force
-  #           else
-  #             echo "no bucket found"
-  #           fi
-
-  #       - name: Create the bucket that was deleted
-  #         run: |
-  #           echo "creating bucket"
-  #           aws s3 mb s3://"$bucket_name"
+          terragrunt run-all destroy --terragrunt-non-interactive
