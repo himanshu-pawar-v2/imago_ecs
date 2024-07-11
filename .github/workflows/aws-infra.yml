@@ -1,13 +1,13 @@
 name: Infrastructure deployment1
 
 on:
-  push:
-    branches:
-      - sagar-*
-      - main
-  pull_request:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - sagar-*
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
   workflow_dispatch:
     inputs:
       prefix:
