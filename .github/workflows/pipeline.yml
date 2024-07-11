@@ -1,26 +1,30 @@
 name: AWS Infrastructure Deployment-ketha
 
 on:
+  push:
+    branches:
+      - ecs-ketha 
+# on:
   # push:
   #   branches:
   #     - ecs-ketha  # Replace with your main branch name
 #   pull_request:
 #     branches:
 #       - main  # Replace with your main branch name
-  workflow_dispatch:
-    inputs:
-      resource_prefix:
-        description: 'Prefix for resource name'
-        required: true
-        default: 'v2-boilerplate'
-      aws_service:
-        description: 'Service name'
-        required: true
-        default: 's3'
-      environment:
-        description: 'Environment name'
-        required: true
-        default: 'dev'
+  # workflow_dispatch:
+  #   inputs:
+  #     resource_prefix:
+  #       description: 'Prefix for resource name'
+  #       required: true
+  #       default: 'v2-boilerplate'
+  #     aws_service:
+  #       description: 'Service name'
+  #       required: true
+  #       default: 's3'
+  #     environment:
+  #       description: 'Environment name'
+  #       required: true
+  #       default: 'dev'
 
 permissions:
   id-token: write
