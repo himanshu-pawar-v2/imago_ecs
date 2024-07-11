@@ -1,0 +1,41 @@
+name: AWS Infrastructure Deployment
+
+on:
+  push:
+    branches:
+      - ecs-ketha  # Replace with your main branch name
+#   pull_request:
+#     branches:
+#       - main  # Replace with your main branch name
+
+jobs:
+  terraform_deploy:
+    name: Deploy AWS Infrastructure
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Setup Terraform and Terragrunt
+      run: |
+        wget -qO- https://github.com/gruntwork-io/terragrunt/releases/download/v0.35.0/terragrunt_linux_amd64_v0.35.0.tar.gz | tar xvz
+        sudo mv terragrunt /usr/local/bin/
+        terraform --version
+        terragrunt --version
+        
+    - name: Terraform Init
+      run: |
+        cd .\infra\environments\dev
+        terragrunt init
+        
+    - name: Terraform Plan
+      run: |
+        cd .\infra\environments\dev
+        terragrunt plan -out=tfplan
+        
+    - name: Terraform Apply
+    #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Customize conditions as needed
+      run: |
+        cd .\infra\environments\dev
+        terragrunt apply -auto-approve tfplan
