@@ -77,5 +77,5 @@ jobs:
           BUCKET_NAME: ${{ env.bucket_name }}
           ENVIRONMENT: ${{ env.environment }}
         run: |
-          cd ./infra/environments/${{ env.environment }}
-          terragrunt run-all apply --terragrunt-non-interactive
+          cd ./infra/environments/dev
+          terragrunt run-all destroy --terragrunt-non-interactive
