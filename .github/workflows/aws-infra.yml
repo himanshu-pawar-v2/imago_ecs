@@ -77,7 +77,7 @@ jobs:
           BUCKET_NAME: ${{ env.bucket_name }}
           ENVIRONMENT: ${{ env.environment }}
         run: |
-          cd ./accelerators-aws/environments/dev
+          cd ./infra/environments/dev
           terragrunt run-all apply --terragrunt-non-interactive
 # name: Infrastructure deployment on AWS
 # on:
