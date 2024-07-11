@@ -9,7 +9,7 @@ inputs = {
   container_definitions = <<EOF
 [
   {
-    "name": "v2-boilerplate-ecs-container-dev", 
+    "name": "v2-boilerplate-container", 
     "image": "nginx:latest",
     "cpu": 256,
     "memory": 512,
@@ -20,16 +20,24 @@ inputs = {
         "hostPort": 80,
         "protocol": "tcp"
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/v2-boilerplate-ecs-service",
+        "awslogs-region": "us-west-2",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
   }
 ]
 EOF
-  cpu                  = 256
-  memory               = 512
+  cpu                  = 1
+  memory               = 25
   subnets              = ["subnet-12345678", "subnet-87654321"]
   security_groups      = ["sg-12345678"]
   assign_public_ip     = true
-  service_name         = "my-ecs-service"
+  service_name         = "v2-boilerplate-ecs-service"
   desired_count        = 2
   task_execution_role_name = "ecs-task-execution-role"
   task_execution_policy_name = "ecs-task-execution-policy"
