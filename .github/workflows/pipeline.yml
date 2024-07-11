@@ -4,28 +4,6 @@ on:
   push:
     branches:
       - ecs-ketha 
-# on:
-  # push:
-  #   branches:
-  #     - ecs-ketha  # Replace with your main branch name
-#   pull_request:
-#     branches:
-#       - main  # Replace with your main branch name
-  # workflow_dispatch:
-  #   inputs:
-  #     resource_prefix:
-  #       description: 'Prefix for resource name'
-  #       required: true
-  #       default: 'v2-boilerplate'
-  #     aws_service:
-  #       description: 'Service name'
-  #       required: true
-  #       default: 's3'
-  #     environment:
-  #       description: 'Environment name'
-  #       required: true
-  #       default: 'dev'
-
 permissions:
   id-token: write
   contents: read
@@ -76,6 +54,6 @@ jobs:
           BUCKET_NAME: v2-boilerplate-state-ketha
           ENVIRONMENT: dev
         run: |
-          cd ./infra/environments/dev
+          cd ./infra/environments/
           terragrunt run-all apply --terragrunt-non-interactive
 
