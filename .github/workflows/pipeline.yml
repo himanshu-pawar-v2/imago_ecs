@@ -1,41 +1,77 @@
-name: AWS Infrastructure Deployment
+name: AWS Infrastructure Deployment-ketha
 
 on:
-  push:
-    branches:
-      - ecs-ketha  # Replace with your main branch name
+  # push:
+  #   branches:
+  #     - ecs-ketha  # Replace with your main branch name
 #   pull_request:
 #     branches:
 #       - main  # Replace with your main branch name
+  workflow_dispatch:
+    inputs:
+      resource_prefix:
+        description: 'Prefix for resource name'
+        required: true
+        default: 'v2-boilerplate'
+      aws_service:
+        description: 'Service name'
+        required: true
+        default: 's3'
+      environment:
+        description: 'Environment name'
+        required: true
+        default: 'dev'
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
-  terraform_deploy:
-    name: Deploy AWS Infrastructure
+  build:
+    name: 'Build and Test'
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 
+        uses: actions/checkout@v3
+
+  deploy:
+    name: 'Terragrunt Init/Plan/Apply'
+    runs-on: ubuntu-latest
+    needs: build
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      
-    - name: Setup Terraform and Terragrunt
-      run: |
-        wget -qO- https://github.com/gruntwork-io/terragrunt/releases/download/v0.35.0/terragrunt_linux_amd64_v0.35.0.tar.gz | tar xvz
-        sudo mv terragrunt /usr/local/bin/
-        terraform --version
-        terragrunt --version
-        
-    - name: Terraform Init
-      run: |
-        cd .\infra\environments\dev
-        terragrunt init
-        
-    - name: Terraform Plan
-      run: |
-        cd .\infra\environments\dev
-        terragrunt plan -out=tfplan
-        
-    - name: Terraform Apply
-    #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Customize conditions as needed
-      run: |
-        cd .\infra\environments\dev
-        terragrunt apply -auto-approve tfplan
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+          aws-region: us-east-2
+
+      - name: Setup Terraform v1.7.4
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
+      - name: Setup Terraform version
+        run: terraform --version
+
+      - name: Setup Terraform wrapper path
+        run: which terraform
+
+      - name: Setup Terragrunt version 0.55.10
+        uses: autero1/action-terragrunt@v3
+        with:
+          terragrunt-version: 0.55.10
+
+      - name: Terragrunt Apply
+        env:
+          BUCKET_NAME: v2-boilerplate-state-ketha
+          ENVIRONMENT: dev
+        run: |
+          cd ./infra/environments/dev
+          terragrunt run-all apply --terragrunt-non-interactive
+
