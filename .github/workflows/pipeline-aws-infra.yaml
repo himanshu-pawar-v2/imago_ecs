@@ -1,14 +1,16 @@
 name: Infrastructure deployment on AWS
 
+  # push:
+  #   branches:
+  #     - sagar-*
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
 on:
-  push:
+  workflow_dispatch:
     branches:
       - sagar-*
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
     inputs:
       prefix:
         description: 'Prefix for the bucket'
