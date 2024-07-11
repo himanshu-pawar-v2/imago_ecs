@@ -1,4 +1,4 @@
-name: Infrastructure deployment on AWS
+name: Infrastructure deployment
 
 on:
   push:
