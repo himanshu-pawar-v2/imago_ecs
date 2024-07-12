@@ -38,7 +38,6 @@ eks:
   enable_cluster_creator_admin_permissions : true
   kms_key_owners:
     - "user/vieer.dubey@v2solutions.com"
-    - "user/sagar.thorat@v2solutions.com"
   cluster_version: 1.29
   create_cloudwatch_log_group  : true
   cluster_endpoint_public_access: true
