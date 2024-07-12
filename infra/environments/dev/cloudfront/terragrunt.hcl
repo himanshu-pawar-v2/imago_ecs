@@ -19,6 +19,10 @@ locals {
     config = yamldecode(file(local.config_path))
 }
 
+output "resolved_config_path" {
+    value = local.config_path
+}
+
 inputs = {
     // env = include.env.locals.env
     bucket_name = dependency.s3.outputs.s3_bucket_name

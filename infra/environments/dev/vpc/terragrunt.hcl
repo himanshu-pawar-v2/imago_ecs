@@ -12,6 +12,10 @@ locals {
     config = yamldecode(file(local.config_path))
 }
 
+output "resolved_config_path" {
+    value = local.config_path
+}
+
 inputs = {
   name = local.config.vpc.name
   cidr = local.config.vpc.cdir

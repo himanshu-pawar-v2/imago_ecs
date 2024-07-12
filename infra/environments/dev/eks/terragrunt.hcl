@@ -13,6 +13,10 @@ locals {
     kms_users = [for users_or_role in local.config.eks.kms_key_owners : "arn:aws:iam::${get_aws_account_id()}:${users_or_role}"]
 }
 
+output "resolved_config_path" {
+    value = local.config_path
+}
+
 dependency "network" {
   config_path = "../vpc"
   mock_outputs = {
