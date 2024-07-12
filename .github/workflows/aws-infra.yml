@@ -73,6 +73,9 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           echo "ACCOUNT_ID=${ACCOUNT_ID}" >> $GITHUB_ENV
       
+      - name: Make preprocess-config.sh executable
+        run: chmod +x ./scripts/preprocess-config.sh
+      
       - name: Preprocess config.yml
         env:
           RESOURCE_PREFIX: ${{ env.RESOURCE_PREFIX }}
