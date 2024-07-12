@@ -4,9 +4,12 @@ terraform {
 include "root"{
 	path = find_in_parent_folders()
 }
+
 locals {
-  // config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
-  config = yamldecode(file("${get_parent_terragrunt_dir()}/config.yaml"))
+    // config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
+    // config = yamldecode(file("${get_parent_terragrunt_dir()}/config.yaml"))
+    config_path = "${get_parent_terragrunt_dir()}/config.yml"
+    config = yamldecode(file(local.config_path))
 }
 
 dependency "ebs" {
