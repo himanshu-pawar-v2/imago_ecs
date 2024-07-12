@@ -24,7 +24,7 @@ vpc:
 
 
 eks:
-  cluster_name: myand-cluster2
+  cluster_name: cluster
   create_iam_role : true
   deploy_worker_in_private_subnet : false
   deploy_cluster_in_private_subnet: false
