@@ -13,11 +13,11 @@ include "root"{
 // }
 
 locals {
-    // config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
+    config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
     // config = yamldecode(file("${get_parent_terragrunt_dir()}/config.yaml"))
     // config_path = "${get_parent_terragrunt_dir()}/config.yml"
-    config_path = "${path_relative_from_include()}/../../config.yml"
-    config = yamldecode(file(local.config_path))
+    // config_path = "${path_relative_from_include()}/../../config.yml"
+    // config = yamldecode(file(local.config_path))
 }
 
 output "resolved_config_path" {
