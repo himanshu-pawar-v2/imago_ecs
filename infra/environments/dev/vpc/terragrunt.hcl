@@ -6,12 +6,13 @@ include "root"{
 }
 locals {
   config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
+  azs = [for az in local.config.vpc.azs : "${get_env("AWS_REGION")}${az}"]
 }
 
 inputs = {
   name = local.config.vpc.name
   cidr = local.config.vpc.cdir
-  azs             = local.config.vpc.azs
+  azs             = local.azs
   private_subnets = local.config.vpc.private_subnets
   single_nat_gateway = local.config.vpc.single_nat_gateway
   public_subnets  = local.config.vpc.public_subnets

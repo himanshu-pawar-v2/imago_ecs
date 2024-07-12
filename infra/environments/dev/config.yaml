@@ -1,14 +1,20 @@
 tags: &tags
   Terraform: "true"
   Environment: "dev"
+  Owner: "v2-devops"
+  Project: "v2-boilerplate"
+
+s3:
+  bucket_name: "${RESOURCE_PREFIX}-s3-dev"
+  versioning_enabled: false
   
 vpc:
   name: threetier
   cdir: "10.0.0.0/16"
   azs :
-    - us-west-2a
-    - us-west-2b
-    - us-west-2c
+    - a
+    - b
+    - c
   private_subnets:
     - "10.0.1.0/24"
     - "10.0.2.0/24"
@@ -24,14 +30,15 @@ vpc:
 
 
 eks:
-  cluster_name: cluster
+  cluster_name: "${RESOURCE_PREFIX}-cluster-dev"
   create_iam_role : true
   deploy_worker_in_private_subnet : false
   deploy_cluster_in_private_subnet: false
   include_oidc_root_ca_thumbprint : true
   enable_cluster_creator_admin_permissions : true
   kms_key_owners:
-    - "arn:aws:iam::370180090626:user/vieer.dubey@v2solutions.com"
+    - "user/vieer.dubey@v2solutions.com"
+    - "user/sagar.thorat@v2solutions.com"
   cluster_version: 1.29
   create_cloudwatch_log_group  : true
   cluster_endpoint_public_access: true
@@ -59,10 +66,10 @@ eks:
     my_user_access:
       kubernetes_groups:
         - "*"
-      principal_arn: "arn:aws:iam::370180090626:user/terraform"
+      principal_arn: "arn:aws:iam::${ACCOUNT_ID}:user/terraform"
       policy_associations:
         admin:
-          policy_arn: "arn:aws:iam::370180090626:policy/AmazonEKSViewPolicy"
+          policy_arn: "arn:aws:iam::${ACCOUNT_ID}:policy/AmazonEKSViewPolicy"
           access_scope:
             namespaces:
               - "default"

@@ -6,6 +6,7 @@ include "root"{
 }
 locals {
   config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
+  kms_users = [for users_or_role in local.config.eks.kms_key_owners : "arn:aws:iam::${get_aws_account_id()}:${users_or_role}"]
 }
 dependency "network" {
   config_path = "../vpc"
@@ -16,11 +17,11 @@ dependency "network" {
   }
 }
 inputs = { 
-  cluster_name    = "${get_env("RESOURCE_PREFIX", "")}-${local.config.eks.cluster_name}-${get_env("ENVIRONMENT", "")}"
+  cluster_name    = local.config.eks.cluster_name
   cluster_version = local.config.eks.cluster_version
   create_cloudwatch_log_group = local.config.eks.create_cloudwatch_log_group
   cluster_endpoint_public_access  = local.config.eks.cluster_endpoint_public_access
-  # cluster_addons = local.config.eks.cluster_addons
+  cluster_addons = local.config.eks.cluster_addons
   vpc_id                   = dependency.network.outputs.vpc_id
   subnet_ids               = local.config.eks.deploy_worker_in_private_subnet ? dependency.network.outputs.private_subnets : dependency.network.outputs.public_subnets
   control_plane_subnet_ids = local.config.eks.deploy_cluster_in_private_subnet ? dependency.network.outputs.private_subnets : dependency.network.outputs.public_subnets
