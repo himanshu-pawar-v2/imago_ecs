@@ -5,7 +5,8 @@ include "root"{
 	path = find_in_parent_folders()
 }
 locals {
-  config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
+  // config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
+  config = yamldecode(file("${get_parent_terragrunt_dir()}/config.yaml"))
   kms_users = [for users_or_role in local.config.eks.kms_key_owners : "arn:aws:iam::${get_aws_account_id()}:${users_or_role}"]
 }
 dependency "network" {

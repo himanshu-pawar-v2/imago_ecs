@@ -76,17 +76,6 @@ jobs:
       - name: Make preprocess-config.sh executable
         run: chmod +x ./scripts/preprocess-config.sh
       
-      # - name: Preprocess config.yml
-      #   env:
-      #     RESOURCE_PREFIX: ${{ env.RESOURCE_PREFIX }}
-      #     ENVIRONMENT: ${{ env.ENVIRONMENT }}
-      #     ACCOUNT_ID: ${{ env.ACCOUNT_ID }}
-      #   run: |
-      #     export RESOURCE_PREFIX=${{ env.RESOURCE_PREFIX }}
-      #     export ENVIRONMENT=${{ env.ENVIRONMENT }}
-      #     export ACCOUNT_ID=${{ env.ACCOUNT_ID }}
-      #     ./scripts/preprocess-config.sh ./infra/config.yml.template ./infra/environments/${{ env.ENVIRONMENT }}/config.yml
-      
       - name: Preprocess config.yml for dev
         env:
           ENVIRONMENT: "dev"
