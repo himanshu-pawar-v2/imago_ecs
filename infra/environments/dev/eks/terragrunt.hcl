@@ -29,7 +29,7 @@ inputs = {
   include_oidc_root_ca_thumbprint = local.config.eks.include_oidc_root_ca_thumbprint
   eks_managed_node_group_defaults = local.config.eks.eks_managed_node_group_defaults
   eks_managed_node_groups = local.config.eks.eks_managed_node_groups
-  kms_key_owners = local.config.eks.kms_key_owners
+  kms_key_owners = local.config.kms_users
   tags = local.config.eks.tags
   enable_cluster_creator_admin_permissions = local.config.eks.enable_cluster_creator_admin_permissions
 }
