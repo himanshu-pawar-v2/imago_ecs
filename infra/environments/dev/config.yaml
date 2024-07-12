@@ -6,9 +6,9 @@ vpc:
   name: threetier
   cdir: "10.0.0.0/16"
   azs :
-    - us-east-1a
-    - us-east-1b
-    - us-east-1c
+    - us-west-2a
+    - us-west-2b
+    - us-west-2c
   private_subnets:
     - "10.0.1.0/24"
     - "10.0.2.0/24"
@@ -24,7 +24,7 @@ vpc:
 
 
 eks:
-  cluster_name: myand-cluster
+  cluster_name: myand-cluster2
   create_iam_role : true
   deploy_worker_in_private_subnet : false
   deploy_cluster_in_private_subnet: false
@@ -67,7 +67,15 @@ eks:
             namespaces:
               - "default"
             type: "namespace"
-  additional_addons:
-    aws-ebs-csi-driver:
-      addon_version: v1.32.0-eksbuild.1
-      service_account_role_arn: 
+
+prometheus:
+  deployment_name: prometheus
+  config_file: prometheus.yml
+  repository_link: https://prometheus-community.github.io/helm-charts
+  chart_name: prometheus
+
+grafana:
+  deployment_name: grafana
+  config_file: grafana.yml
+  repository_link: https://grafana.github.io/helm-charts
+  chart_name: grafana
