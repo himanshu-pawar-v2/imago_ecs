@@ -77,4 +77,4 @@ jobs:
           echo $RESOURCE_PREFIX
           echo $ENVIRONMENT
           cd ./infra/environments/${{ env.environment }}
-          terragrunt run-all destroy --terragrunt-non-interactive
+          terragrunt run-all plan --terragrunt-non-interactive
