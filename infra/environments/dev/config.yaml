@@ -5,7 +5,7 @@ tags: &tags
   Project: "v2-boilerplate"
 
 s3:
-  bucket_name: "${RESOURCE_PREFIX}-s3-dev"
+  bucket_name: "${RESOURCE_PREFIX:-sample}-s3-dev"
   versioning_enabled: false
 
 vpc:
@@ -30,7 +30,7 @@ vpc:
 
 
 eks:
-  cluster_name: "${RESOURCE_PREFIX}-cluster-dev"
+  cluster_name: "${RESOURCE_PREFIX:-sample}-cluster-dev"
   create_iam_role : true
   deploy_worker_in_private_subnet : false
   deploy_cluster_in_private_subnet: false
