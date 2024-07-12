@@ -72,5 +72,7 @@ jobs:
           RESOURCE_PREFIX: ${{ env.resource_prefix }}
           ENVIRONMENT: ${{ env.environment }}
         run: |
-          cd ./infra/environments/${{ env.environment }}
-          terragrunt run-all apply --terragrunt-non-interactive
+          echo $RESOURCE_PREFIX
+          echo $ENVIRONMENT
+      # cd ./infra/environments/${{ env.environment }}
+      # terragrunt run-all apply --terragrunt-non-interactive
