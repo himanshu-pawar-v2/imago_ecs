@@ -5,9 +5,9 @@ tags: &tags
   Project: "v2-boilerplate"
 
 s3:
-  bucket_name: "${RESOURCE_PREFIX:-sample}-s3-dev"
+  bucket_name: "v2-boilerplate-s3-dev"
   versioning_enabled: false
-  
+
 vpc:
   name: threetier
   cdir: "10.0.0.0/16"
@@ -30,7 +30,7 @@ vpc:
 
 
 eks:
-  cluster_name: "${RESOURCE_PREFIX}-cluster-dev"
+  cluster_name: "v2-boilerplate-cluster-dev"
   create_iam_role : true
   deploy_worker_in_private_subnet : false
   deploy_cluster_in_private_subnet: false

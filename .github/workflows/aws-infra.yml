@@ -25,6 +25,7 @@ permissions:
 env:
   resource_prefix: ${{ github.event.inputs.resource_prefix }}
   environment: ${{ github.event.inputs.environment }}
+  account_id: "370180090626"
 
 jobs:
   build:
@@ -71,8 +72,9 @@ jobs:
         env:
           RESOURCE_PREFIX: ${{ env.resource_prefix }}
           ENVIRONMENT: ${{ env.environment }}
+          ACCOUNT_ID: ${{ env.account_id }}
         run: |
           echo $RESOURCE_PREFIX
           echo $ENVIRONMENT
-      # cd ./infra/environments/${{ env.environment }}
-      # terragrunt run-all apply --terragrunt-non-interactive
+          cd ./infra/environments/${{ env.environment }}
+          terragrunt run-all destroy --terragrunt-non-interactive
