@@ -17,7 +17,7 @@ dependency "network" {
   }
 }
 inputs = { 
-  cluster_name    = local.config.eks.cluster_name
+  cluster_name    = "${get_env("RESOURCE_PREFIX", "")}-${local.config.eks.cluster_name}"
   cluster_version = local.config.eks.cluster_version
   create_cloudwatch_log_group = local.config.eks.create_cloudwatch_log_group
   cluster_endpoint_public_access  = local.config.eks.cluster_endpoint_public_access

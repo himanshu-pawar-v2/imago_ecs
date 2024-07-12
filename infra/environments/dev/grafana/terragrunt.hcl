@@ -15,7 +15,7 @@ dependency "ebs" {
   }
 }
 inputs = {
-  cluster_name = local.config.eks.cluster_name
+  cluster_name = "${get_env("RESOURCE_PREFIX", "")}-${local.config.eks.cluster_name}"
   deployment_name = local.config.grafana.deployment_name
   repository_link = local.config.grafana.repository_link
   chart_name = local.config.grafana.chart_name

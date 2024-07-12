@@ -18,7 +18,7 @@ locals {
 
 inputs = {
     // env = include.env.locals.env
-    bucket_name = local.config.s3.bucket_name
+    bucket_name = "${get_env("RESOURCE_PREFIX", "")}-${local.config.s3.bucket_name}"
     // bucket_name = "v2-boilerplate-sagar-dev"
     versioning_enabled = local.config.s3.versioning_enabled
 }
