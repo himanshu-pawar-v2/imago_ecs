@@ -78,7 +78,9 @@ jobs:
       
       - name: Preprocess config.yml for dev
         env:
-          ENVIRONMENT: "dev"
+          RESOURCE_PREFIX: ${{ env.resource_prefix }}
+          ENVIRONMENT: ${{ env.environment }}
+          ACCOUNT_ID: ${{ env.ACCOUNT_ID }}
         run: |
           export RESOURCE_PREFIX=${{ env.RESOURCE_PREFIX }}
           export ENVIRONMENT=${{ env.ENVIRONMENT }}
