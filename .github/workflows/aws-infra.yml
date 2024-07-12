@@ -1,31 +1,30 @@
 name: Infrastructure deployment
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  # workflow_dispatch:
-  #   inputs:
-  #     resource_prefix:
-  #       description: 'Prefix for resource name'
-  #       required: true
-  #       default: 'v2-boilerplate'
-  #     environment:
-  #       description: 'Environment name'
-  #       required: true
-  #       default: 'dev'
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+    inputs:
+      resource_prefix:
+        description: 'Prefix for resource name'
+        required: true
+        default: 'v2-boilerplate'
+      environment:
+        description: 'Environment name'
+        required: true
+        default: 'dev'
 
 permissions:
   id-token: write
   contents: read
 
-# env:
-#   # bucket_name: ${{ github.event.inputs.resource_prefix }}-${{ github.event.inputs.aws_service }}-${{ github.event.inputs.environment }}
-#   resource_prefix: ${{ github.event.inputs.resource_prefix }}
-#   environment: ${{ github.event.inputs.environment }}
+env:
+  resource_prefix: ${{ github.event.inputs.resource_prefix }}
+  environment: ${{ github.event.inputs.environment }}
 
 jobs:
   build:
@@ -69,9 +68,9 @@ jobs:
           terragrunt-version: 0.55.10
 
       - name: Terragrunt Apply
-        # env:
-        #   RESOURCE_PREFIX: ${{ env.resource_prefix }}
-        #   ENVIRONMENT: ${{ env.environment }}
+        env:
+          RESOURCE_PREFIX: ${{ env.resource_prefix }}
+          ENVIRONMENT: ${{ env.environment }}
         run: |
-          cd ./infra/environments/dev
-          terragrunt run-all destroy --terragrunt-non-interactive
+          cd ./infra/environments/${{ env.environment }}
+          terragrunt run-all apply --terragrunt-non-interactive

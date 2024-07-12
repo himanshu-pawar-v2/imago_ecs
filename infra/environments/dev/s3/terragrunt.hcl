@@ -14,7 +14,7 @@ include "env"{
 
 inputs = {
     env = include.env.locals.env
-    // bucket_name = get_env("BUCKET_NAME")
-    bucket_name = "v2-boilerplate-sagar-dev"
+    bucket_name = "${get_env("RESOURCE_PREFIX", "")}-s3-${get_env("ENVIRONMENT", "")}"
+    // bucket_name = "v2-boilerplate-sagar-dev"
     versioning_enabled = false
 }
