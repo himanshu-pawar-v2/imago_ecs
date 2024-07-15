@@ -64,10 +64,10 @@ eks:
     my_user_access:
       kubernetes_groups:
         - "*"
-      principal_arn: "arn:aws:iam::370180090626:user/terraform"
+      principal_arn: "arn:aws:iam::${ACCOUNT_ID}:user/terraform"
       policy_associations:
         admin:
-          policy_arn: "arn:aws:iam::370180090626:policy/AmazonEKSViewPolicy"
+          policy_arn: "arn:aws:iam::${ACCOUNT_ID}:policy/AmazonEKSViewPolicy"
           access_scope:
             namespaces:
               - "default"
