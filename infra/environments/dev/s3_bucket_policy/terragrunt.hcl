@@ -13,12 +13,12 @@ locals {
 
 dependency "s3" {
   config_path = "../s3"
-  skip_outputs = true
+//   skip_outputs = true
 }
 
 dependency "cloudfront" {
     config_path = "../cloudfront"
-    skip_outputs = true
+    // skip_outputs = true
 //   mock_outputs ={
 //     cloudfront_distribution_id = "E1234567891011"
 //     }
@@ -27,8 +27,8 @@ dependency "cloudfront" {
 
 inputs = {
     bucket_name = dependency.s3.outputs.s3_bucket_name
-    cloudfront_distribution_id = "E1234567891011"
-//   cloudfront_distribution_id = dependency.cloudfront.outputs.cloudfront_distribution_id
+    // cloudfront_distribution_id = "E1234567891011"
+    cloudfront_distribution_id = dependency.cloudfront.outputs.cloudfront_distribution_id
 
 }
 
