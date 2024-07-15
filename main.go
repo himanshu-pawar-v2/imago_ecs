@@ -189,7 +189,6 @@ func ensureDatabaseExists(dbConfig DBConfig) error {
 		fmt.Println("creating database ")
 		if err != nil {
 			handleError(err, "ensureDatabaseExists", "create_database_failed", start)
-			return fmt.Errorf("failed to create database: %w", err)
 		}
 		log.Println("Database created successfully.")
 	}
@@ -221,7 +220,6 @@ func ensureTableExists(dbConfig DBConfig) error {
 	err = db.QueryRow(query).Scan(&exists)
 	if err != nil {
 		handleError(err, "ensureTableExists", "table_exist_check_failed", start)
-		return fmt.Errorf("failed to check if table exists: %w", err)
 	}
 
 	if !exists {
@@ -234,7 +232,6 @@ func ensureTableExists(dbConfig DBConfig) error {
 		_, err := db.Exec(createTableQuery)
 		if err != nil {
 			handleError(err, "ensureTableExists", "table_create_failed", start)
-			return fmt.Errorf("failed to create table: %w", err)
 		}
 		log.Println("Table created successfully.")
 	}
