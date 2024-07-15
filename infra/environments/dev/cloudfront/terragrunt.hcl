@@ -20,7 +20,7 @@ locals {
 
 inputs = {
     // env = include.env.locals.env
-    bucket_name = dependency.s3.outputs.s3_bucket_name
+    bucket_name = local.config.s3.bucket_name
 }
 
 dependency "s3"{
