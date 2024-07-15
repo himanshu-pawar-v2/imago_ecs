@@ -30,7 +30,7 @@ vpc:
   map_public_ip_on_launch: true
 
 eks:
-  cluster_name: "${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}"
+  cluster_name: "${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}" &cluster_name
   create_iam_role: true
   deploy_worker_in_private_subnet: false
   deploy_cluster_in_private_subnet: false
