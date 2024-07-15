@@ -14,10 +14,10 @@ include "root"{
 
 locals {
     // config = yamldecode(file("${find_in_parent_folders("config.yaml")}"))
-    // config_path = "/home/runner/work/v2-boilerplate-microservices-application/v2-boilerplate-microservices-application/infra/environments/dev/config.yml"
+    config_path = "/home/runner/work/v2-boilerplate-microservices-application/v2-boilerplate-microservices-application/infra/environments/dev/config.yml"
     // config = yamldecode(file("${get_parent_terragrunt_dir()}/config.yaml"))
     // config_path = "${get_parent_terragrunt_dir()}/config.yml"
-    config_path = "${path_relative_from_include()}/../../config.yml"
+    // config_path = "${path_relative_from_include()}/../../config.yml"
     config = yamldecode(file(local.config_path))
 }
 
