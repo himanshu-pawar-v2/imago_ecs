@@ -98,7 +98,7 @@ loadbalancer_controler:
       value: "1"
 
 rds:
-  name: "databases" #cluster name
+  name: "databases"
   publicly_accessible: false
   engine: "aurora-postgresql"
   engine_version: "15.4"
