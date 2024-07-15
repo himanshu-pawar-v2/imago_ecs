@@ -77,6 +77,7 @@ var dbHost = os.Getenv("DB_ENDPOINT_READER")
 var dbPort = os.Getenv("DB_PORT")
 var dbName = os.Getenv("DB_NAME")
 var tableName = os.Getenv("TABLE_NAME")
+var Dbwrite = os.Getenv("DB_ENDPOINT_WRITER")
 
 // Prometheus metrics
 var funcCount = promauto.NewCounterVec(prometheus.CounterOpts{
@@ -97,10 +98,12 @@ var cpuUtilization = promauto.NewHistogramVec(prometheus.HistogramOpts{
 }, []string{"function"})
 
 func main() {
+	fmt.Println("\nupdated 2")
 	secretName := os.Getenv("AWS_SECRET_NAME")
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(region)},
 	)
+
 	if err != nil {
 		log.Fatalf("Failed to create AWS session: %v", err)
 	}
@@ -139,7 +142,7 @@ func main() {
 }
 
 func ensureDatabaseExists(dbConfig DBConfig) error {
-	// Open connection to the database server without specifying a database
+	// Open connection to the PostgreSQL server without specifying a database
 	funcCount.WithLabelValues("ensureDatabaseExists").Inc()
 	start := time.Now()
 	defer func() {
@@ -148,8 +151,10 @@ func ensureDatabaseExists(dbConfig DBConfig) error {
 		memoryUsage.WithLabelValues("ensureDatabaseExists").Observe(float64(memStats.Alloc))
 		cpuUtilization.WithLabelValues("ensureDatabaseExists").Observe(time.Since(start).Seconds())
 	}()
+
+	// Establish connection to PostgreSQL server
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=require",
-		dbHost, dbPort, dbConfig.Username, dbConfig.Password)
+		Dbwrite, dbPort, dbConfig.Username, dbConfig.Password)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		handleError(err, "ensureDatabaseExists", "database_connection_failed", start)
@@ -162,13 +167,26 @@ func ensureDatabaseExists(dbConfig DBConfig) error {
 	var exists bool
 	err = db.QueryRow(query).Scan(&exists)
 	if err != nil && err != sql.ErrNoRows {
-		return fmt.Errorf("failed to check if database exists: %w", err)
+		handleError(err, "ensureDatabaseExists", "check_database_failed", start)
 	}
 
 	if !exists {
+		// Close current connection to start a new session for creating the database
+		db.Close()
+		fmt.Println("Database not exist ")
+		// Establish a new connection to PostgreSQL for creating the database
+		createDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=require dbname=postgres",
+			Dbwrite, dbPort, dbConfig.Username, dbConfig.Password)
+		createDB, err := sql.Open("postgres", createDSN)
+		if err != nil {
+			handleError(err, "ensureDatabaseExists", "database_reconnection_failed", start)
+		}
+		defer createDB.Close()
+
 		// Create the database
 		createDBQuery := fmt.Sprintf("CREATE DATABASE %s OWNER %s", dbName, dbConfig.Username)
-		_, err := db.Exec(createDBQuery)
+		_, err = createDB.Exec(createDBQuery)
+		fmt.Println("creating database ")
 		if err != nil {
 			handleError(err, "ensureDatabaseExists", "create_database_failed", start)
 			return fmt.Errorf("failed to create database: %w", err)
@@ -190,7 +208,7 @@ func ensureTableExists(dbConfig DBConfig) error {
 		cpuUtilization.WithLabelValues("ensureTableExists").Observe(time.Since(start).Seconds())
 	}()
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
-		dbHost, dbPort, dbConfig.Username, dbConfig.Password, dbName)
+		Dbwrite, dbPort, dbConfig.Username, dbConfig.Password, dbName)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		handleError(err, "ensureTableExists", "database_connection_failed", start)
