@@ -30,7 +30,7 @@ vpc:
   map_public_ip_on_launch: true
 
 eks:
-  cluster_name: "${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}" &cluster_name
+  cluster_name: "${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}"
   create_iam_role: true
   deploy_worker_in_private_subnet: false
   deploy_cluster_in_private_subnet: false
@@ -93,7 +93,7 @@ loadbalancer_controler:
   chart_name: aws-load-balancer-controller
   parameters: 
     - key: clusterName
-      value: *cluster_name
+      value: "${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}"
     - key: replicaCount
       value: "1"
 
