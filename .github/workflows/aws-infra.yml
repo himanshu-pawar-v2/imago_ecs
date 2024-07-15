@@ -121,4 +121,4 @@ jobs:
           echo $ENVIRONMENT
           echo $ACCOUNT_ID
           cd ./infra/environments/${{ env.environment }}
-          terragrunt run-all plan --terragrunt-non-interactive
+          terragrunt run-all apply --terragrunt-non-interactive
