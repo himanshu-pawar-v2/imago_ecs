@@ -25,7 +25,14 @@ inputs = {
     db_subnet_group_name   = local.config.rds.db_subnet_group_name
     subnets                = dependency.network.outputs.private_subnets
     create_db_subnet_group = local.config.rds.create_db_subnet_group    
-    # security_group_rules = local.config.rds.security_group_rules
+    security_group_rules = {
+    ex1_ingress = {
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    ex1_ingress = {
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
     database_name = local.config.rds.database_name
     master_username = local.config.rds.master_username
     storage_encrypted                                      = local.config.rds.storage_encrypted

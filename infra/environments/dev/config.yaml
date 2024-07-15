@@ -98,13 +98,13 @@ loadbalancer_controler:
       value: "1"
 
 rds:
-  name: "database" #cluster name
-  publicly_accessible: true
+  name: "databases" #cluster name
+  publicly_accessible: false
   engine: "aurora-postgresql"
   engine_version: "15.4"
   instance_class: "db.t3.medium"
   instance_type: "db.t3.medium"
-  db_subnet_group_name: "application"
+  db_subnet_group_name: "applicatiosns"
   create_db_subnet_group: true
   instances:
     one:
