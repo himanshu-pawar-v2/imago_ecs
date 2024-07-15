@@ -94,6 +94,8 @@ jobs:
       #   run: cat ./infra/environments/dev/config.yml
 
       - name: Verify config.yml
+        env:
+            ENVIRONMENT: ${{ env.environment }}
         run: |
           echo "Contents of config.yml:"
           cat ./infra/environments/${{ env.ENVIRONMENT }}/config.yml
