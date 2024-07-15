@@ -17,15 +17,19 @@ dependency "s3" {
 }
 
 dependency "cloudfront" {
-  config_path = "../cloudfront"
-  mock_outputs ={
-    cloudfront_distribution_id = "E1234567891011"
-    }
+    config_path = "../cloudfront"
+    skip_outputs = true
+//   mock_outputs ={
+//     cloudfront_distribution_id = "E1234567891011"
+//     }
+
 }
 
 inputs = {
-  bucket_name = dependency.s3.outputs.s3_bucket_name
-  cloudfront_distribution_id = dependency.cloudfront.outputs.cloudfront_distribution_id
+    bucket_name = dependency.s3.outputs.s3_bucket_name
+    cloudfront_distribution_id = "E1234567891011"
+//   cloudfront_distribution_id = dependency.cloudfront.outputs.cloudfront_distribution_id
+
 }
 
 // terraform {
