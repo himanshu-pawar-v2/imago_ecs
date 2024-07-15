@@ -14,10 +14,6 @@ locals {
     config = yamldecode(file(local.config_path))
 }
 
-output "resolved_config_path" {
-    value = local.config_path
-}
-
 // include "env"{
 //     path = find_in_parent_folders("env.hcl")
 //     expose = true

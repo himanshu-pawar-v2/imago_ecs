@@ -12,9 +12,6 @@ locals {
     config = yamldecode(file(local.config_path))
 }
 
-output "resolved_config_path" {
-    value = local.config_path
-}
 
 dependency "ebs" {
   config_path = "../ebs"
