@@ -87,11 +87,18 @@ jobs:
           export ACCOUNT_ID=${{ env.ACCOUNT_ID }}
           ./scripts/preprocess-config.sh ./infra/config.yml.template ./infra/environments/${{ env.ENVIRONMENT }}/config.yml
       
-      - name: List files in environments directory
-        run: ls -R ./infra/environments
+      # - name: List files in environments directory
+      #   run: ls -R ./infra/environments
 
-      - name: cat config.yml
-        run: cat ./infra/environments/dev/config.yml
+      # - name: cat config.yml
+      #   run: cat ./infra/environments/dev/config.yml
+
+      - name: Verify config.yml
+        run: |
+          echo "Contents of config.yml:"
+          cat ./infra/environments/${{ env.ENVIRONMENT }}/config.yml
+          echo "Location of config.yml:"
+          ls -l ./infra/environments/${{ env.ENVIRONMENT }}/config.yml
 
       - name: Terragrunt Apply
         env:
