@@ -36,6 +36,6 @@ dependency "cloudfront"{
 dependency "s3"{
 	config_path = "../s3"
 	mock_outputs ={
-	    s3_bucket_name = "my-test-bucket"
+	    s3_bucket_name = local.config.s3.bucket_name
 	}
 }
