@@ -39,7 +39,7 @@ jobs:
         aws-region: us-west-2
 
     - name: Construct bucket name
-        run: echo "BUCKET_NAME=${{ env.resource_prefix }}-s3-${{ env.environment }}" >> $GITHUB_ENV
+      run: echo "BUCKET_NAME=${{ env.resource_prefix }}-s3-${{ env.environment }}" >> $GITHUB_ENV
 
     - name: Deploy To S3 Bucket
       env:
