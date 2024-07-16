@@ -32,11 +32,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
-          aws-region: us-west-2
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+        aws-region: us-west-2
 
     - name: Construct bucket name
         run: echo "BUCKET_NAME=${{ env.resource_prefix }}-s3-${{ env.environment }}" >> $GITHUB_ENV
