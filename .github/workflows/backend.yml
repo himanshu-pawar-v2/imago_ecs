@@ -85,7 +85,7 @@ jobs:
           terraform init
           terraform output -json > tf_output.json
           repository=$(jq -r '.repository_url.value' tf_output.json)
-          echo "repository=$DB_ENDPOINT_WRITER" >> $GITHUB_ENV
+          echo "repository=$repository" >> $GITHUB_ENV
           
       - name: get eks Details
         id: set-eks
@@ -114,10 +114,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.repository }}
-          IMAGE_TAG: $GITHUB_RUN_NUMBER
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t  ${{ env.repository }}:${{ github.run_number }} .
+          docker push  ${{ env.repository }}:${{ github.run_number }}
           
       - name: Deploy Helm
         uses: bitovi/github-actions-deploy-eks-helm@v1.2.10
@@ -129,5 +128,5 @@ jobs:
           config-files: helm/values.yaml
           chart-path: helm/
           namespace: default
-          values: secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }}, secret.DB_PORT=${{ env.DB_PORT }}, secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }}, "secret.AWS_SECRET_NAME"=${{ env.AWS_SECRET_NAME }},"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"=${{ env.application_role }}
+          values: image.repository=${{ env.repository }}, image.tag=${{ github.run_number }}, secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }}, secret.DB_PORT=${{ env.DB_PORT }}, secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }}, "secret.AWS_SECRET_NAME"=${{ env.AWS_SECRET_NAME }},"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"=${{ env.application_role }}
           name: backend
