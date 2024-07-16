@@ -57,24 +57,29 @@ jobs:
           cd data/rds/
           terraform init
           terraform output -json > tf_output.json
-          DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json)
-          DB_ENDPOINT_READER=$(jq -r '.cluster_reader_endpoint.value' tf_output.json)
-          DB_PORT=$(jq -r '.cluster_port.value' tf_output.json)
-          DB_ENDPOINT_WRITER=$(jq -r '.cluster_endpoint.value' tf_output.json)
-          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json)
-          echo "DB_NAME=$DB_NAME"
-          echo "DB_ENDPOINT_READER=$DB_ENDPOINT_READER"
-          echo "DB_PORT=$DB_PORT"
-          echo "DB_ENDPOINT_WRITER=$DB_ENDPOINT_WRITER"
-          echo "AWS_SECRET_NAME=$AWS_SECRET_NAME"
+          DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json | base64)
+          DB_ENDPOINT_READER=$(jq -r '.cluster_reader_endpoint.value' tf_output.json | base64)
+          DB_PORT=$(jq -r '.cluster_port.value' tf_output.json | base64)
+          DB_ENDPOINT_WRITER=$(jq -r '.cluster_endpoint.value' tf_output.json | base64)
+          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | sed 's/^.*secret://')
+            
+          # Export variables to GitHub environment
           echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
           echo "DB_ENDPOINT_READER=$DB_ENDPOINT_READER" >> $GITHUB_ENV
           echo "DB_PORT=$DB_PORT" >> $GITHUB_ENV
           echo "DB_ENDPOINT_WRITER=$DB_ENDPOINT_WRITER" >> $GITHUB_ENV
           echo "AWS_SECRET_NAME=$AWS_SECRET_NAME" >> $GITHUB_ENV
 
-      - name: get ECR Details
+      - name: get iam Details
         id: set-env2
+        run: |
+          cd data/application_oicd/
+          terraform init
+          terraform output -json > tf_output.json
+          application_role=$(jq -r '.role_arn.value' tf_output.json)
+          echo "application_role=$application_role" >> $GITHUB_ENV
+      - name: get ECR Details
+        id: set-env3
         run: |
           cd data/ecr/
           terraform init
@@ -100,7 +105,20 @@ jobs:
           echo "DB_ENDPOINT_WRITER: ${{ env.DB_ENDPOINT_WRITER }}"
           echo "AWS_SECRET_NAME: ${{ env.AWS_SECRET_NAME }}"
           echo "repository: ${{ env.repository }}"
-    
+          
+      - name: Login to Amazon ECR
+        id: login-pf-aws-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        
+      - name: Build and push the tagged docker image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.repository }}
+          IMAGE_TAG: $GITHUB_RUN_NUMBER
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
       - name: Deploy Helm
         uses: bitovi/github-actions-deploy-eks-helm@v1.2.10
         with:
@@ -108,11 +126,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
           aws-region: us-west-2
           cluster-name: ${{ env.CLUSTER_NAME }}
-          config-files: ./values.yaml
-          chart-path: ./
+          config-files: helm/values.yaml
+          chart-path: helm/
           namespace: default
-          values: key1=value1,key2=value2
+          values: secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }}, secret.DB_PORT=${{ env.DB_PORT }}, secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }}, "secret.AWS_SECRET_NAME"=${{ env.AWS_SECRET_NAME }},"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"=${{ env.application_role }}
           name: backend
-
-
-echo -n "$(jq -r '.cluster_database_name.value' tf_output.json)" | base64
