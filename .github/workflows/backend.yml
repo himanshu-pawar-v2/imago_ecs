@@ -81,7 +81,7 @@ jobs:
       - name: get ECR Details
         id: set-env3
         run: |
-          cd helm/data/ecr/
+          cd data/ecr/
           terraform init
           terraform output -json > tf_output.json
           repository=$(jq -r '.repository_url.value' tf_output.json)
