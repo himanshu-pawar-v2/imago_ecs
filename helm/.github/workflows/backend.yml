@@ -1,0 +1,118 @@
+name: Backend CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_prefix:
+        description: 'Prefix for resource name'
+        required: true
+        default: 'v2-boilerplate'
+      environment:
+        description: 'Environment name'
+        required: true
+        default: 'dev'
+        
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  resource_prefix: ${{ github.event.inputs.resource_prefix }}
+  environment: ${{ github.event.inputs.environment }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+          aws-region: us-west-2
+
+      - name: Setup Terraform v1.8.4
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.8.4
+          terraform_wrapper: false
+
+      - name: Setup Terraform version
+        run: terraform --version
+
+      - name: Setup Terraform wrapper path
+        run: which terraform
+
+      - name: Setup Terragrunt version 0.58.13
+        uses: autero1/action-terragrunt@v3
+        with:
+          terragrunt-version: 0.58.13
+    
+      - name: get RDS Details
+        id: set-env
+        run: |
+          cd data/rds/
+          terraform init
+          terraform output -json > tf_output.json
+          DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json)
+          DB_ENDPOINT_READER=$(jq -r '.cluster_reader_endpoint.value' tf_output.json)
+          DB_PORT=$(jq -r '.cluster_port.value' tf_output.json)
+          DB_ENDPOINT_WRITER=$(jq -r '.cluster_endpoint.value' tf_output.json)
+          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json)
+          echo "DB_NAME=$DB_NAME"
+          echo "DB_ENDPOINT_READER=$DB_ENDPOINT_READER"
+          echo "DB_PORT=$DB_PORT"
+          echo "DB_ENDPOINT_WRITER=$DB_ENDPOINT_WRITER"
+          echo "AWS_SECRET_NAME=$AWS_SECRET_NAME"
+          echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
+          echo "DB_ENDPOINT_READER=$DB_ENDPOINT_READER" >> $GITHUB_ENV
+          echo "DB_PORT=$DB_PORT" >> $GITHUB_ENV
+          echo "DB_ENDPOINT_WRITER=$DB_ENDPOINT_WRITER" >> $GITHUB_ENV
+          echo "AWS_SECRET_NAME=$AWS_SECRET_NAME" >> $GITHUB_ENV
+
+      - name: get ECR Details
+        id: set-env2
+        run: |
+          cd data/ecr/
+          terraform init
+          terraform output -json > tf_output.json
+          repository=$(jq -r '.repository_url.value' tf_output.json)
+          echo "repository=$DB_ENDPOINT_WRITER" >> $GITHUB_ENV
+          
+      - name: get eks Details
+        id: set-eks
+        run: |
+          cd data/eks/
+          terraform init
+          terraform output -json > tf_output.json
+          clustername=$(jq -r '.cluster_name.value' tf_output.json)
+          echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
+          
+      - name: get all details
+        id: getenv
+        run: |
+          echo "DB_NAME:  ${{ env.DB_NAME }}"
+          echo "DB_ENDPOINT_READER: ${{ env.DB_ENDPOINT_READER }}"
+          echo "DB_PORT: ${{ env.DB_PORT }}"
+          echo "DB_ENDPOINT_WRITER: ${{ env.DB_ENDPOINT_WRITER }}"
+          echo "AWS_SECRET_NAME: ${{ env.AWS_SECRET_NAME }}"
+          echo "repository: ${{ env.repository }}"
+    
+      - name: Deploy Helm
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.10
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+          aws-region: us-west-2
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          config-files: ./values.yaml
+          chart-path: ./
+          namespace: default
+          values: key1=value1,key2=value2
+          name: backend
+
+
+echo -n "$(jq -r '.cluster_database_name.value' tf_output.json)" | base64
