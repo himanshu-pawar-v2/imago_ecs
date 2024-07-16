@@ -54,7 +54,7 @@ jobs:
       - name: get RDS Details
         id: set-env
         run: |
-          cd helm/data/rds/
+          cd data/rds/
           terraform init
           terraform output -json > tf_output.json
           DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json | base64)
@@ -73,7 +73,7 @@ jobs:
       - name: get iam Details
         id: set-env2
         run: |
-          cd helm/data/application_oicd/
+          cd data/application_oicd/
           terraform init
           terraform output -json > tf_output.json
           application_role=$(jq -r '.role_arn.value' tf_output.json)
@@ -90,7 +90,7 @@ jobs:
       - name: get eks Details
         id: set-eks
         run: |
-          cd helm/data/eks/
+          cd data/eks/
           terraform init
           terraform output -json > tf_output.json
           clustername=$(jq -r '.cluster_name.value' tf_output.json)
