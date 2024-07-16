@@ -125,8 +125,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
           aws-region: us-west-2
           cluster-name: ${{ env.CLUSTER_NAME }}
-          config-files: helm/values.yaml
-          chart-path: helm/
+          config-files: ./helm/values.yaml
+          chart-path: ./helm/
           namespace: default
-          values: image.repository=${{ env.repository }}, image.tag=${{ github.run_number }}, secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }}, secret.DB_PORT=${{ env.DB_PORT }}, secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }}, "secret.AWS_SECRET_NAME"=${{ env.AWS_SECRET_NAME }},"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"=${{ env.application_role }}
+          values: image.repository=${{ env.repository }},image.tag=${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},"secret.AWS_SECRET_NAME"=${{ env.AWS_SECRET_NAME }},"serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"=${{ env.application_role }}
           name: backend
