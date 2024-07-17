@@ -56,11 +56,9 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/scheme: internet-facing
   hosts:
-    - host: "d2194xta68iug7.cloudfront.net"
+    - host: "*.cloudfront.net"
       paths:
-        - path: /metrics
-          pathType: ImplementationSpecific
-        - path: /backend
+        - path: /
           pathType: ImplementationSpecific
   tls: []
 
