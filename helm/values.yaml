@@ -59,7 +59,9 @@ ingress:
     - host: "d2194xta68iug7.cloudfront.net"
       paths:
         - path: /metrics
+          pathType: ImplementationSpecific
         - path: /backend
+          pathType: ImplementationSpecific
   tls: []
 
 # ingress:
