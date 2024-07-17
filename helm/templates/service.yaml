@@ -17,6 +17,7 @@ spec:
     {{- include "application.selectorLabels" . | nindent 4 }}
 
 
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
