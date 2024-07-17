@@ -23,7 +23,7 @@ serviceAccount:
   create: true
   automount: true
   annotations: 
-    eks.amazonaws.com/role-arn: "arn:aws:iam::370180090626:role/application_get"
+    eks.amazonaws.com/role-arn: ""
   name: "application"
 
 podAnnotations: {}
