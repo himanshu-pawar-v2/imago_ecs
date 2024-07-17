@@ -43,10 +43,13 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 80
-#   annotations: {}
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: application-ingress
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
 
 ingress:
-  enabled: true
+  enabled: false
   className: "alb"
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: application-ingress
