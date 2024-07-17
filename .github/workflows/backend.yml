@@ -65,7 +65,8 @@ jobs:
           DB_PORT=$(jq -r '.cluster_port.value' tf_output.json | base64)
           # AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | sed 's/^.*secret://')
 
-          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | base64)
+          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json )
+          AWS_SECRET_NAME=$(aws secretsmanager describe-secret --secret-id $AWS_SECRET_NAME --query 'Name' --output text --region us-west-2)
 
           # Export variables to GitHub environment
           echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
