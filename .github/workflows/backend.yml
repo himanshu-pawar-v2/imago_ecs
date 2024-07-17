@@ -63,7 +63,8 @@ jobs:
           DB_ENDPOINT_WRITER=$(jq -r '.cluster_endpoint.value | rtrimstr("\n")' tf_output.json)
           DB_ENDPOINT_WRITER=$(printf "%s" "$DB_ENDPOINT_WRITER" | base64 | tr -d '\n')
           DB_PORT=$(jq -r '.cluster_port.value' tf_output.json | base64)
-          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | sed 's/^.*secret://')
+          # AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | sed 's/^.*secret://')
+          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json )
           AWS_SECRET_NAME=$(echo -n "$AWS_SECRET_NAME" | base64)       
           # Export variables to GitHub environment
           echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
