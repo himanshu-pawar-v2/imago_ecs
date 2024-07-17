@@ -20,13 +20,14 @@ secret:
 
 
 serviceAccount:
-  create: true
-  automount: true
-  name: "application"
-  arn: ""
+  create: true       # Whether to create the ServiceAccount
+  automount: true    # Whether to automatically mount the ServiceAccount token
+  annotations: {}    # Annotations for the ServiceAccount, if any
+  name: "application"  # Name of the ServiceAccount
+  arn: ""            # ARN of the IAM role associated with the ServiceAccount
 
 
-  
+
 podAnnotations: {}
 podLabels: {}
 
