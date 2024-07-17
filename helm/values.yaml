@@ -22,10 +22,11 @@ secret:
 serviceAccount:
   create: true
   automount: true
-  annotations: 
-    eks.amazonaws.com/role-arn: ""
   name: "application"
+  arn: ""
 
+
+  
 podAnnotations: {}
 podLabels: {}
 
