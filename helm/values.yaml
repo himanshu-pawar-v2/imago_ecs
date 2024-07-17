@@ -46,20 +46,18 @@ service:
 #   annotations: {}
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  className: "alb"
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: application-ingress
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
   hosts:
     - host: "*"
       paths:
-        - path: /
-          pathType: ImplementationSpecific
+        - path: /metrics
+        - path: /backend
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 # resources: 
 #   limits:
