@@ -10,4 +10,4 @@ RUN chmod 755 application
 FROM nginx
 WORKDIR /var/task
 COPY --from=build --chmod=755 /go/src/app/application .
-CMD ["./application"]
+# CMD ["./application"]
