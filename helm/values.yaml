@@ -49,16 +49,17 @@ service:
     alb.ingress.kubernetes.io/scheme: internet-facing
 
 ingress:
-  enabled: false
+  enabled: true
   className: "alb"
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: application-ingress
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/scheme: internet-facing
   hosts:
-    paths:
-      - path: /metrics
-      - path: /backend
+    - host: "*.*"
+      paths:
+        - path: /metrics
+        - path: /backend
   tls: []
 
 # ingress:
