@@ -40,9 +40,9 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# service:
-#   type: LoadBalancer
-#   port: 80
+service:
+  # type: LoadBalancer
+  port: 80
 #   annotations: {}
 
 ingress:
