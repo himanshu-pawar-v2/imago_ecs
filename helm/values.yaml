@@ -53,12 +53,24 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/scheme: internet-facing
   hosts:
-    - host: "-"
-      paths:
-        - path: /metrics
-        - path: /backend
+    paths:
+      - path: /metrics
+      - path: /backend
   tls: []
 
+# ingress:
+#   enabled: true
+#   className: "alb"
+#   annotations:
+#     alb.ingress.kubernetes.io/load-balancer-name: application-ingress
+#     alb.ingress.kubernetes.io/target-type: ip
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#   hosts:
+#     - host: "-"
+#       paths:
+#         - path: /metrics
+#         - path: /backend
+#   tls: []
 # resources: 
 #   limits:
 #     cpu: 100m
