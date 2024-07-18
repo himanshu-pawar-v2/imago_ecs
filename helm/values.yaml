@@ -43,10 +43,8 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
-  annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: application-ingress
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/scheme: internet-facing
+  targetPort: 80
+  protocol: TCP
 
 ingress:
   enabled: true
@@ -56,7 +54,6 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/scheme: internet-facing
   hosts:
-    - host: "*.net"
       paths:
         - path: "/"
           pathType: ImplementationSpecific
