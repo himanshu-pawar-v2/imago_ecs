@@ -54,11 +54,10 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/scheme: internet-facing
   hosts:
-    - host: '*.*'
-      paths:
-        - path: "/"
-          pathType: ImplementationSpecific
+    - path: "/"
+      pathType: ImplementationSpecific
   tls: []
+
 
 # ingress:
 #   enabled: true
