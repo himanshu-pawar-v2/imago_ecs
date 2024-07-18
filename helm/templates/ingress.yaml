@@ -16,35 +16,27 @@ metadata:
     {{- include "application.labels" . | nindent 4 }}
   {{- if .Values.ingress.annotations }}
   annotations:
-    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
   {{- end }}
 spec:
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.ingress.className }}
-  {{- end }}
+  ingressClassName: alb
   rules:
-    {{- range $index, $path := .Values.ingress.hosts }}
-    - host: {{ $path.host }}
-      http:
+    - http:
         paths:
-          - path: "/backend"
-            pathType: ImplementationSpecific
+          - path: /backend
+            pathType: Prefix
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
-
-          # - path: "/metrics"
-          #   pathType: ImplementationSpecific
-          #   backend:
-          #     service:
-          #       name: {{ $fullName }}
-          #       port:
-          #         number: {{ $svcPort }}
-    {{- end }}
-  {{- if .Values.ingress.tls }}
-  tls:
-    {{- toYaml .Values.ingress.tls | nindent 4 }}
-  {{- end }}
+          - path: /metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
 {{- end }}
