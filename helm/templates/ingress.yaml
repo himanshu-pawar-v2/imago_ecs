@@ -27,10 +27,16 @@ spec:
     - host: {{ $path.host }}
       http:
         paths:
-          - path: {{ $path.path }}
-            {{- if and $path.pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
-            pathType: {{ $path.pathType }}
-            {{- end }}
+          - path: "/backend"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+
+          - path: "/metrics"
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ $fullName }}
