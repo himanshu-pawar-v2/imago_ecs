@@ -35,13 +35,13 @@ spec:
                 port:
                   number: {{ $svcPort }}
 
-          - path: "/metrics"
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $svcPort }}
+          # - path: "/metrics"
+          #   pathType: ImplementationSpecific
+          #   backend:
+          #     service:
+          #       name: {{ $fullName }}
+          #       port:
+          #         number: {{ $svcPort }}
     {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
