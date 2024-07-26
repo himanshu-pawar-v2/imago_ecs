@@ -33,11 +33,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: echos
-        run: |
-          echo ${{ vars.AWS_PRIMARY_REGION }}
-          echo arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.ROLE_NAME }}
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -86,6 +81,8 @@ jobs:
           terragrunt output -json > tf_output.json
           application_role=$(jq -r '.role_arn.value' tf_output.json)
           echo "application_role=$application_role" >> $GITHUB_ENV
+          echo "$application_role"
+
       - name: get ECR Details
         id: set-env3
         run: |
@@ -134,9 +131,6 @@ jobs:
           namespace: ${{ env.namespace }}
           values: image.repository=${{ env.repository }},image.tag=${{ github.event.inputs.environment }}-v1.${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},secret.AWS_SECRET_NAME=${{ env.AWS_SECRET_NAME }},serviceAccount.arn=${{ env.application_role }}
           name: backend
-          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
-          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
-          # aws-region: us-west-2
 
       - name: Get Load Balancer DNS
         id: get_lb_dns
