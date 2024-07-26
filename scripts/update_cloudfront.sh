@@ -66,7 +66,7 @@ new_origin=$(jq -n \
         "CustomOriginConfig": {
             "HTTPPort": 80,
             "HTTPSPort": 443,
-            "OriginProtocolPolicy": "https-only",
+            "OriginProtocolPolicy": "http-only",
             "OriginSslProtocols": {
                 "Quantity": 1,
                 "Items": ["TLSv1.2"]
@@ -80,10 +80,52 @@ new_origin=$(jq -n \
 current_origins=$(echo $distribution_config_json | jq '.Origins')
 updated_origins=$(echo $current_origins | jq --argjson new_origin "$new_origin" '.Items += [$new_origin] | .Quantity += 1')
 
-# Update the distribution config with the new origins
-updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" '.Origins = $updated_origins')
+# Create a new cache behavior for the /backend path
+new_cache_behavior=$(jq -n \
+    --arg path_pattern "/backend/*" \
+    --arg origin_id "$id" \
+    '{
+        "PathPattern": $path_pattern,
+        "TargetOriginId": $origin_id,
+        "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+                "Forward": "none"
+            },
+            "Headers": {
+                "Quantity": 0,
+                "Items": []
+            }
+        },
+        "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0,
+            "Items": []
+        },
+        "ViewerProtocolPolicy": "http-and-https",
+        "MinTTL": 0,
+        "DefaultTTL": 86400,
+        "MaxTTL": 31536000,
+        "Compress": true
+    }')
+
+# Add the new cache behavior to the existing cache behaviors
+current_cache_behaviors=$(echo $distribution_config_json | jq '.CacheBehaviors')
+updated_cache_behaviors=$(echo $current_cache_behaviors | jq --argjson new_cache_behavior "$new_cache_behavior" '.Items += [$new_cache_behavior] | .Quantity += 1')
+
+# Update the distribution config with the new origins and cache behaviors
+updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" --argjson updated_cache_behaviors "$updated_cache_behaviors" '.Origins = $updated_origins | .CacheBehaviors = $updated_cache_behaviors')
 
 # Apply the updated configuration to the CloudFront distribution
 aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
 
-echo "Updated CloudFront distribution $cloudfront_distribution_id with new origin $LB_DNS"
+echo "Updated CloudFront distribution $cloudfront_distribution_id with new origin $LB_DNS and new behavior for /backend path"
+
+
+# # Update the distribution config with the new origins
+# updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" '.Origins = $updated_origins')
+
+# # Apply the updated configuration to the CloudFront distribution
+# aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
+
+# echo "Updated CloudFront distribution $cloudfront_distribution_id with new origin $LB_DNS"
