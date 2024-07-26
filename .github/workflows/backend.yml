@@ -118,9 +118,15 @@ jobs:
       - name: Get Load Balancer DNS
         id: get_lb_dns
         run: |
-          LB_ARN=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?contains(Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}'])].LoadBalancerArn" --output text)
+          lb_arns=$(aws elbv2 describe-load-balancers --query "LoadBalancers[*].LoadBalancerArn" --output text)
+          for arn in $lb_arns; do
+            LB_ARN=$(aws elbv2 describe-tags --resource-arns $arn --query "TagDescriptions[?Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}']]" --output text | grep -q $arn && echo $arn)
+          done
+          echo "LB_ARN=$LB_ARN" >> $GITHUB_ENV
+          echo "$LB_ARN"
           LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
           echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
+          echo "$LB_DNS"
       # - name: Login to Amazon ECR
       #   id: login-pf-aws-ecr
       #   uses: aws-actions/amazon-ecr-login@v1
