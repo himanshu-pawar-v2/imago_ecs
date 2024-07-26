@@ -132,15 +132,14 @@ jobs:
           values: image.repository=${{ env.repository }},image.tag=${{ github.event.inputs.environment }}-v1.${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},secret.AWS_SECRET_NAME=${{ env.AWS_SECRET_NAME }},serviceAccount.arn=${{ env.application_role }}
           name: backend
 
-      - name: Get Load Balancer DNS
-        id: get_lb_dns
-        run: |
-          lb_arns=$(aws elbv2 describe-load-balancers --query "LoadBalancers[*].LoadBalancerArn" --output text)
-          for arn in $lb_arns; do
-            LB_ARN=$(aws elbv2 describe-tags --resource-arns $arn --query "TagDescriptions[?Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}']]" --output text | grep -q $arn && echo $arn)
-          done
-          echo "LB_ARN=$LB_ARN" >> $GITHUB_ENV
-          echo "$LB_ARN"
-          LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
-          echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
-          echo "$LB_DNS"
+      # Make the update_cloudfront.sh script executable
+      - name: Make update_cloudfront.sh executable
+        run: chmod +x scripts/update_cloudfront.sh
+
+      # Run the update_cloudfront.sh script
+      - name: Update CloudFront Distribution
+        env:
+          RESOURCE_PREFIX: v2-sbp
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+        run: ./scripts/update_cloudfront.sh $RESOURCE_PREFIX $ENVIRONMENT $ACCOUNT_ID
