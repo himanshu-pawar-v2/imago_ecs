@@ -12,9 +12,9 @@ fullnameOverride: ""
 secret:
   AWS_REGION: dXMtd2VzdC0y
   DB_NAME: 
-  DB_ENDPOINT_READER: 
-  DB_PORT: 
-  DB_ENDPOINT_WRITER: 
+  DB_ENDPOINT_READER: "" 
+  DB_PORT: ""
+  DB_ENDPOINT_WRITER: ""
   AWS_SECRET_NAME: ""
   TABLE_NAME: dXNlcnM=
 
@@ -22,8 +22,7 @@ secret:
 serviceAccount:
   create: true
   automount: true
-  annotations: 
-    eks.amazonaws.com/role-arn: 
+  arn: ""
   name: "application"
 
 podAnnotations: {}
