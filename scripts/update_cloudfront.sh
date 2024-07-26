@@ -119,14 +119,8 @@ new_cache_behavior=$(jq -n \
 current_cache_behaviors=$(echo $distribution_config_json | jq '.CacheBehaviors')
 updated_cache_behaviors=$(echo $current_cache_behaviors | jq --argjson new_cache_behavior "$new_cache_behavior" '.Items += [$new_cache_behavior] | .Quantity += 1')
 
-# Create a field-level encryption setting (required even if not used)
-field_level_encryption=$(jq -n '{
-    "Quantity": 0,
-    "Items": []
-}')
-
-# Update the distribution config with the new origins, cache behaviors, and field-level encryption
-updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" --argjson updated_cache_behaviors "$updated_cache_behaviors" --argjson field_level_encryption "$field_level_encryption" '.Origins = $updated_origins | .CacheBehaviors = $updated_cache_behaviors | .FieldLevelEncryption = $field_level_encryption')
+# Update the distribution config with the new origins and cache behaviors
+updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" --argjson updated_cache_behaviors "$updated_cache_behaviors" '.Origins = $updated_origins | .CacheBehaviors = $updated_cache_behaviors')
 
 # Apply the updated configuration to the CloudFront distribution
 aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
