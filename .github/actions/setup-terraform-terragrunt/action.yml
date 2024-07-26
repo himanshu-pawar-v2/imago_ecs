@@ -1,0 +1,37 @@
+name: Setup AWS and Terragrunt
+
+description: 'Configures AWS credentials and sets up Terraform and Terragrunt'
+
+inputs:
+  aws_region:
+    description: 'AWS Region'
+    required: true
+  role_arn:
+    description: 'Role ARN to assume'
+    required: true
+  terraform_version:
+    description: 'Terraform Version'
+    required: true
+  terragrunt_version:
+    description: 'Terragrunt Version'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-region: ${{ inputs.aws_region }}
+        role-to-assume: ${{ inputs.role_arn }}
+        role-session-name: GitHubActionsSession
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+
+    - name: Setup Terragrunt
+      uses: autero1/action-terragrunt@v3
+      with:
+        terragrunt-version: ${{ inputs.terragrunt_version }}

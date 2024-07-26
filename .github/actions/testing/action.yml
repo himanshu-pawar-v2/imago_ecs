@@ -1,0 +1,16 @@
+name: Test Infrastructure
+
+description: 'Runs tests on infrastructure code'
+
+inputs:
+  test_script:
+    description: 'Path to the test script'
+    required: true
+    default: './scripts/run-tests.sh'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Tests
+      run: |
+        bash ${{ inputs.test_script }}
