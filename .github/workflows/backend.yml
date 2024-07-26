@@ -106,12 +106,12 @@ jobs:
           echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
 
        - name: Get Load Balancer DNS
-         id: get_lb_dns
-         run: |
-           LB_ARN=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?contains(Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}'])].LoadBalancerArn" --output text)
-           LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
-           # echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
-           echo $LB_DNS
+        id: get_lb_dns
+        run: |
+          LB_ARN=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?contains(Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}'])].LoadBalancerArn" --output text)
+          LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
+          # echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
+          echo $LB_DNS
           
       # - name: get all details
       #   id: getenv
