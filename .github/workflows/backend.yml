@@ -7,17 +7,22 @@ on:
         description: 'Namespace name'
         required: true
         default: 'default'
-        
+      environment:
+        description: 'Environment name'
+        required: true
+        default: 'dev'
 permissions:
   id-token: write
   contents: read
 
 env:
   namespace: ${{ github.event.inputs.namespace }}
+  environment: ${{ github.event.inputs.environment }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
     env:
       AWS_PRIMARY_REGION: ${{ vars.AWS_PRIMARY_REGION }}
     steps:
