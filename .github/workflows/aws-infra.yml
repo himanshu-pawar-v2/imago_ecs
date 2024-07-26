@@ -103,6 +103,9 @@ jobs:
         # export ACCOUNT_ID=${{ secrets.ACCOUNT_ID }}
         # ./scripts/preprocess-config.sh ./infra/config-${{ env.environment }}.yml.template ./infra/environments/${{ env.ENVIRONMENT }}/config.yml
 
+      # # **********Debug Steps***********Uncomment when required*********
+      - name: List files in environments directory
+        run: ls -R ./infra/environments
       # Temporary
       - name: Verify config.yml
         env:
