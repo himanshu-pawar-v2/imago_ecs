@@ -120,7 +120,11 @@ current_cache_behaviors=$(echo $distribution_config_json | jq '.CacheBehaviors')
 updated_cache_behaviors=$(echo $current_cache_behaviors | jq --argjson new_cache_behavior "$new_cache_behavior" '.Items += [$new_cache_behavior] | .Quantity += 1')
 
 # Update the distribution config with the new origins and cache behaviors
-updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" --argjson updated_cache_behaviors "$updated_cache_behaviors" '.Origins = $updated_origins | .CacheBehaviors = $updated_cache_behaviors')
+updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" --argjson updated_cache_behaviors "$updated_cache_behaviors" '
+    .Origins = $updated_origins | 
+    .CacheBehaviors = $updated_cache_behaviors | 
+    .DefaultCacheBehavior.FieldLevelEncryptionId = .DefaultCacheBehavior.FieldLevelEncryptionId // ""
+')
 
 # Apply the updated configuration to the CloudFront distribution
 aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
