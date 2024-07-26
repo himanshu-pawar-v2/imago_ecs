@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: 370180090626.dkr.ecr.us-west-2.amazonaws.com/home
+  repository: 
   pullPolicy: Always
-  tag: final4
+  tag: 
 
 imagePullSecrets: []
 nameOverride: ""
@@ -23,7 +23,7 @@ serviceAccount:
   create: true
   automount: true
   annotations: 
-    eks.amazonaws.com/role-arn: "arn:aws:iam::370180090626:role/application_get"
+    eks.amazonaws.com/role-arn: 
   name: "application"
 
 podAnnotations: {}

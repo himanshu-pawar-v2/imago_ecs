@@ -41,12 +41,6 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.ROLE_NAME }}
           role-session-name: GitHubActionsSession
 
-      - name: Setup Terraform v1.8.4
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.8.4
-          terraform_wrapper: false
-
 
       - name: Setup Terragrunt version 0.58.13
         uses: autero1/action-terragrunt@v3
@@ -57,8 +51,8 @@ jobs:
         id: set-env
         run: |
           cd data/rds/
-          terraform init
-          terraform output -json > tf_output.json
+          terragrunt init
+          terragrunt output -json > tf_output.json
           DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json | base64)
           DB_ENDPOINT_READER=$(jq -r '.cluster_reader_endpoint.value | rtrimstr("\n")' tf_output.json)
           DB_ENDPOINT_READER=$(printf "%s" "$DB_ENDPOINT_READER" | base64 | tr -d '\n')
@@ -83,16 +77,16 @@ jobs:
         id: set-env2
         run: |
           cd data/application_oicd/
-          terraform init
-          terraform output -json > tf_output.json
+          terragrunt init
+          terragrunt output -json > tf_output.json
           application_role=$(jq -r '.role_arn.value' tf_output.json)
           echo "application_role=$application_role" >> $GITHUB_ENV
       - name: get ECR Details
         id: set-env3
         run: |
           cd data/ecr/
-          terraform init
-          terraform output -json > tf_output.json
+          terragrunt init
+          terragrunt output -json > tf_output.json
           repository=$(jq -r '.repository_url.value' tf_output.json)
           echo "repository=$repository" >> $GITHUB_ENV
           
@@ -100,16 +94,16 @@ jobs:
         id: set-eks
         run: |
           cd data/eks/
-          terraform init
-          terraform output -json > tf_output.json
+          terragrunt init
+          terragrunt output -json > tf_output.json
           clustername=$(jq -r '.cluster_name.value' tf_output.json)
           echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
           
       - name: get Cloudfront Details
         run: |
           cd data/cloudfront/
-          terraform init
-          terraform output -json > tf_output.json
+          terragrunt init
+          terragrunt output -json > tf_output.json
           ORIGIN_ID=$(jq -r '.cloudfront_distribution_id.value' tf_output.json)
           echo "ORIGIN_ID=$ORIGIN_ID" >> $GITHUB_ENV
 
@@ -129,15 +123,15 @@ jobs:
       - name: Deploy Helm
         uses: bitovi/github-actions-deploy-eks-helm@v1.2.10
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
-          aws-region: us-west-2
           cluster-name: ${{ env.CLUSTER_NAME }}
           config-files: ./helm/values.yaml
           chart-path: ./helm/
           namespace: ${{ env.namespace }}
           values: image.repository=${{ env.repository }},image.tag=${{ github.event.inputs.environment }}-v1.${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},secret.AWS_SECRET_NAME=${{ env.AWS_SECRET_NAME }},serviceAccount.arn=${{ env.application_role }}
           name: backend
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
+          # aws-region: us-west-2
 
       - name: Get Load Balancer DNS
         id: get_lb_dns

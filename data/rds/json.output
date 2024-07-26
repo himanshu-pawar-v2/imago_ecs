@@ -1,0 +1,251 @@
+{
+  "additional_cluster_endpoints": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {}
+    ],
+    "value": {}
+  },
+  "cluster_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:rds:us-west-2:370180090626:cluster:v2-sbp-db-dev"
+  },
+  "cluster_database_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "v2boilerplate"
+  },
+  "cluster_endpoint": {
+    "sensitive": false,
+    "type": "string",
+    "value": "v2-sbp-db-dev.cluster-ch4kggkegat9.us-west-2.rds.amazonaws.com"
+  },
+  "cluster_engine_version_actual": {
+    "sensitive": false,
+    "type": "string",
+    "value": "15.4"
+  },
+  "cluster_hosted_zone_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "Z1PVIF0B656C1W"
+  },
+  "cluster_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "v2-sbp-db-dev"
+  },
+  "cluster_instances": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "one": [
+          "object",
+          {
+            "apply_immediately": "bool",
+            "arn": "string",
+            "auto_minor_version_upgrade": "bool",
+            "availability_zone": "string",
+            "ca_cert_identifier": "string",
+            "cluster_identifier": "string",
+            "copy_tags_to_snapshot": "bool",
+            "custom_iam_instance_profile": "string",
+            "db_parameter_group_name": "string",
+            "db_subnet_group_name": "string",
+            "dbi_resource_id": "string",
+            "endpoint": "string",
+            "engine": "string",
+            "engine_version": "string",
+            "engine_version_actual": "string",
+            "id": "string",
+            "identifier": "string",
+            "identifier_prefix": "string",
+            "instance_class": "string",
+            "kms_key_id": "string",
+            "monitoring_interval": "number",
+            "monitoring_role_arn": "string",
+            "network_type": "string",
+            "performance_insights_enabled": "bool",
+            "performance_insights_kms_key_id": "string",
+            "performance_insights_retention_period": "number",
+            "port": "number",
+            "preferred_backup_window": "string",
+            "preferred_maintenance_window": "string",
+            "promotion_tier": "number",
+            "publicly_accessible": "bool",
+            "storage_encrypted": "bool",
+            "tags": [
+              "map",
+              "string"
+            ],
+            "tags_all": [
+              "map",
+              "string"
+            ],
+            "timeouts": [
+              "object",
+              {
+                "create": "string",
+                "delete": "string",
+                "update": "string"
+              }
+            ],
+            "writer": "bool"
+          }
+        ]
+      }
+    ],
+    "value": {
+      "one": {
+        "apply_immediately": true,
+        "arn": "arn:aws:rds:us-west-2:370180090626:db:v2-sbp-db-dev-one",
+        "auto_minor_version_upgrade": true,
+        "availability_zone": "us-west-2b",
+        "ca_cert_identifier": "rds-ca-rsa2048-g1",
+        "cluster_identifier": "v2-sbp-db-dev",
+        "copy_tags_to_snapshot": false,
+        "custom_iam_instance_profile": "",
+        "db_parameter_group_name": "default.aurora-postgresql15",
+        "db_subnet_group_name": "v2-sbp-db-subg-dev",
+        "dbi_resource_id": "db-VEWSK5LLYFC33N5HLAUY5R3OTY",
+        "endpoint": "v2-sbp-db-dev-one.ch4kggkegat9.us-west-2.rds.amazonaws.com",
+        "engine": "aurora-postgresql",
+        "engine_version": "15.4",
+        "engine_version_actual": "15.4",
+        "id": "v2-sbp-db-dev-one",
+        "identifier": "v2-sbp-db-dev-one",
+        "identifier_prefix": "",
+        "instance_class": "db.t3.medium",
+        "kms_key_id": "arn:aws:kms:us-west-2:370180090626:key/2a0e595b-c7e8-446a-a429-c2f07dea89fd",
+        "monitoring_interval": 1,
+        "monitoring_role_arn": "arn:aws:iam::370180090626:role/terraform-20240726074912237200000001",
+        "network_type": "IPV4",
+        "performance_insights_enabled": false,
+        "performance_insights_kms_key_id": "",
+        "performance_insights_retention_period": 0,
+        "port": 5432,
+        "preferred_backup_window": "02:00-03:00",
+        "preferred_maintenance_window": "sun:05:00-sun:06:00",
+        "promotion_tier": 0,
+        "publicly_accessible": false,
+        "storage_encrypted": true,
+        "tags": {
+          "Environment": "dev",
+          "Owner": "v2-devops",
+          "Project": "v2-sbp",
+          "Terraform": "true"
+        },
+        "tags_all": {
+          "Environment": "dev",
+          "Owner": "v2-devops",
+          "Project": "v2-sbp",
+          "Terraform": "true"
+        },
+        "timeouts": {
+          "create": null,
+          "delete": null,
+          "update": null
+        },
+        "writer": true
+      }
+    }
+  },
+  "cluster_master_user_secret": {
+    "sensitive": false,
+    "type": [
+      "list",
+      [
+        "object",
+        {
+          "kms_key_id": "string",
+          "secret_arn": "string",
+          "secret_status": "string"
+        }
+      ]
+    ],
+    "value": [
+      {
+        "kms_key_id": "arn:aws:kms:us-west-2:370180090626:key/c0740d80-b60a-4558-b11e-cfaeb8aa8f9b",
+        "secret_arn": "arn:aws:secretsmanager:us-west-2:370180090626:secret:rds!cluster-63aadeb5-4693-4a3d-bac5-b7fa599cb48a-v9U1eL",
+        "secret_status": "active"
+      }
+    ]
+  },
+  "cluster_master_username": {
+    "sensitive": true,
+    "type": "string",
+    "value": "masteruser"
+  },
+  "cluster_members": {
+    "sensitive": false,
+    "type": [
+      "set",
+      "string"
+    ],
+    "value": []
+  },
+  "cluster_port": {
+    "sensitive": false,
+    "type": "number",
+    "value": 5432
+  },
+  "cluster_reader_endpoint": {
+    "sensitive": false,
+    "type": "string",
+    "value": "v2-sbp-db-dev.cluster-ro-ch4kggkegat9.us-west-2.rds.amazonaws.com"
+  },
+  "cluster_resource_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "cluster-Y2OQO3TXMGDX6SEBYSXP6WJDYI"
+  },
+  "cluster_role_associations": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {}
+    ],
+    "value": {}
+  },
+  "db_cluster_cloudwatch_log_groups": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {}
+    ],
+    "value": {}
+  },
+  "db_cluster_secretsmanager_secret_rotation_enabled": {
+    "sensitive": false,
+    "type": "bool",
+    "value": true
+  },
+  "db_subnet_group_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "v2-sbp-db-subg-dev"
+  },
+  "enhanced_monitoring_iam_role_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:iam::370180090626:role/terraform-20240726074912237200000001"
+  },
+  "enhanced_monitoring_iam_role_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "terraform-20240726074912237200000001"
+  },
+  "enhanced_monitoring_iam_role_unique_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "AROAVMMDT5MBD5PJG6FTV"
+  },
+  "security_group_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "sg-0403fb48e511f4675"
+  }
+}
