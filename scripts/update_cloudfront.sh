@@ -41,7 +41,7 @@ if [ -z "$cloudfront_distribution_id" ]; then
     exit 1
 fi
 
-# Step 3: Update CloudFront Distribution to add Load Balancer DNS as an origin
+# Step 3: Update CloudFront Distribution to add Load Balancer DNS as an origin and update behavior
 # Get the current CloudFront distribution config
 distribution_config=$(aws cloudfront get-distribution-config --id "$cloudfront_distribution_id")
 
@@ -67,7 +67,7 @@ new_origin=$(jq -n \
         "CustomOriginConfig": {
             "HTTPPort": 80,
             "HTTPSPort": 443,
-            "OriginProtocolPolicy": "http-only",
+            "OriginProtocolPolicy": "https-only",
             "OriginSslProtocols": {
                 "Quantity": 1,
                 "Items": ["TLSv1.2"]
@@ -103,11 +103,12 @@ new_cache_behavior=$(jq -n \
             "Quantity": 0,
             "Items": []
         },
-        "ViewerProtocolPolicy": "allow-all",
+        "ViewerProtocolPolicy": "redirect-to-https",
         "MinTTL": 0,
         "DefaultTTL": 86400,
         "MaxTTL": 31536000,
-        "Compress": true
+        "Compress": true,
+        "SmoothStreaming": false
     }')
 
 # Add the new cache behavior to the existing cache behaviors
@@ -121,7 +122,6 @@ updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "
 aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
 
 echo "Updated CloudFront distribution $cloudfront_distribution_id with new origin $LB_DNS and new behavior for /backend path"
-
 
 # # Update the distribution config with the new origins
 # updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" '.Origins = $updated_origins')
