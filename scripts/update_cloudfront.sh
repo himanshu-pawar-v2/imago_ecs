@@ -127,6 +127,10 @@ new_cache_behavior=$(jq -n \
                     "GET", "HEAD"
                 ]
             }
+        },
+        "LambdaFunctionAssociations": {
+            "Quantity": 0,
+            "Items": []
         }
     }')
 
@@ -136,10 +140,15 @@ updated_config=$(echo $updated_config | jq --argjson new_cache_behavior "$new_ca
     .CacheBehaviors.Quantity = (.CacheBehaviors.Items | length)
 ')
 
-# Ensure FieldLevelEncryptionId is present in DefaultCacheBehavior
+# Ensure FieldLevelEncryptionId and LambdaFunctionAssociations are present in DefaultCacheBehavior
 updated_config=$(echo $updated_config | jq '
     if .DefaultCacheBehavior.FieldLevelEncryptionId == null then
         .DefaultCacheBehavior.FieldLevelEncryptionId = ""
+    else
+        .
+    end |
+    if .DefaultCacheBehavior.LambdaFunctionAssociations == null then
+        .DefaultCacheBehavior.LambdaFunctionAssociations = {"Quantity": 0, "Items": []}
     else
         .
     end
