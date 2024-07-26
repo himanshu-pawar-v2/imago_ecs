@@ -76,7 +76,7 @@ jobs:
       - name: get iam Details
         id: set-env2
         run: |
-          cd data/application_oicd/
+          cd data/application_oidc/
           terragrunt init
           terragrunt output -json > tf_output.json
           application_role=$(jq -r '.role_arn.value' tf_output.json)
