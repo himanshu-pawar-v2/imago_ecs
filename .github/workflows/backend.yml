@@ -46,6 +46,91 @@ jobs:
         uses: autero1/action-terragrunt@v3
         with:
           terragrunt-version: 0.58.13
+    
+      - name: get RDS Details
+        id: set-env
+        run: |
+          cd data/rds/
+          terragrunt init
+          terragrunt output -json > tf_output.json
+          DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json | base64)
+          DB_ENDPOINT_READER=$(jq -r '.cluster_reader_endpoint.value | rtrimstr("\n")' tf_output.json)
+          DB_ENDPOINT_READER=$(printf "%s" "$DB_ENDPOINT_READER" | base64 | tr -d '\n')
+          DB_ENDPOINT_WRITER=$(jq -r '.cluster_endpoint.value | rtrimstr("\n")' tf_output.json)
+          DB_ENDPOINT_WRITER=$(printf "%s" "$DB_ENDPOINT_WRITER" | base64 | tr -d '\n')
+          DB_PORT=$(jq -r '.cluster_port.value' tf_output.json | base64)
+          # AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | sed 's/^.*secret://')
+
+          AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json )
+          AWS_SECRET_NAME=$(aws secretsmanager describe-secret --secret-id $AWS_SECRET_NAME --query 'Name' --output text --region us-west-2)
+          AWS_SECRET_NAME=$(printf "%s" "$AWS_SECRET_NAME" | base64 | tr -d '\n')
+
+
+          # Export variables to GitHub environment
+          echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
+          echo "DB_ENDPOINT_READER=$DB_ENDPOINT_READER" >> $GITHUB_ENV
+          echo "DB_PORT=$DB_PORT" >> $GITHUB_ENV
+          echo "DB_ENDPOINT_WRITER=$DB_ENDPOINT_WRITER" >> $GITHUB_ENV
+          echo "AWS_SECRET_NAME=$AWS_SECRET_NAME" >> $GITHUB_ENV
+
+      - name: get iam Details
+        id: set-env2
+        run: |
+          cd data/application_oidc/
+          terragrunt init
+          terragrunt output -json > tf_output.json
+          application_role=$(jq -r '.role_arn.value' tf_output.json)
+          echo "application_role=$application_role" >> $GITHUB_ENV
+          echo "$application_role"
+
+      - name: get ECR Details
+        id: set-env3
+        run: |
+          cd data/ecr/
+          terragrunt init
+          terragrunt output -json > tf_output.json
+          repository=$(jq -r '.repository_url.value' tf_output.json)
+          echo "repository=$repository" >> $GITHUB_ENV
+          
+      - name: get eks Details
+        id: set-eks
+        run: |
+          cd data/eks/
+          terragrunt init
+          terragrunt output -json > tf_output.json
+          clustername=$(jq -r '.cluster_name.value' tf_output.json)
+          echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
+          
+      - name: get Cloudfront Details
+        run: |
+          cd data/cloudfront/
+          terragrunt init
+          terragrunt output -json > tf_output.json
+          ORIGIN_ID=$(jq -r '.cloudfront_distribution_id.value' tf_output.json)
+          echo "ORIGIN_ID=$ORIGIN_ID" >> $GITHUB_ENV
+
+     
+      - name: Login to Amazon ECR
+        id: login-pf-aws-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        
+      - name: Build and push the tagged docker image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.repository }}
+        run: |
+          docker build -t  ${{ env.repository }}:${{ github.event.inputs.environment }}-v1.${{ github.run_number }} .
+          docker push  ${{ env.repository }}:${{ github.event.inputs.environment }}-v1.${{ github.run_number }}
+          
+      - name: Deploy Helm
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.10
+        with:
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          config-files: ./helm/values.yaml
+          chart-path: ./helm/
+          namespace: ${{ env.namespace }}
+          values: image.repository=${{ env.repository }},image.tag=${{ github.event.inputs.environment }}-v1.${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},secret.AWS_SECRET_NAME=${{ env.AWS_SECRET_NAME }},serviceAccount.arn=${{ env.application_role }}
+          name: backend
 
       # Make the update_cloudfront.sh script executable
       - name: Make update_cloudfront.sh executable
@@ -58,101 +143,3 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.environment }}
           ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
         run: ./scripts/update_cloudfront.sh $RESOURCE_PREFIX $ENVIRONMENT $ACCOUNT_ID
-    
-      # - name: get RDS Details
-      #   id: set-env
-      #   run: |
-      #     cd data/rds/
-      #     terragrunt init
-      #     terragrunt output -json > tf_output.json
-      #     DB_NAME=$(jq -r '.cluster_database_name.value' tf_output.json | base64)
-      #     DB_ENDPOINT_READER=$(jq -r '.cluster_reader_endpoint.value | rtrimstr("\n")' tf_output.json)
-      #     DB_ENDPOINT_READER=$(printf "%s" "$DB_ENDPOINT_READER" | base64 | tr -d '\n')
-      #     DB_ENDPOINT_WRITER=$(jq -r '.cluster_endpoint.value | rtrimstr("\n")' tf_output.json)
-      #     DB_ENDPOINT_WRITER=$(printf "%s" "$DB_ENDPOINT_WRITER" | base64 | tr -d '\n')
-      #     DB_PORT=$(jq -r '.cluster_port.value' tf_output.json | base64)
-      #     # AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json | sed 's/^.*secret://')
-
-      #     AWS_SECRET_NAME=$(jq -r '.cluster_master_user_secret.value[0].secret_arn' tf_output.json )
-      #     AWS_SECRET_NAME=$(aws secretsmanager describe-secret --secret-id $AWS_SECRET_NAME --query 'Name' --output text --region us-west-2)
-      #     AWS_SECRET_NAME=$(printf "%s" "$AWS_SECRET_NAME" | base64 | tr -d '\n')
-
-
-      #     # Export variables to GitHub environment
-      #     echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
-      #     echo "DB_ENDPOINT_READER=$DB_ENDPOINT_READER" >> $GITHUB_ENV
-      #     echo "DB_PORT=$DB_PORT" >> $GITHUB_ENV
-      #     echo "DB_ENDPOINT_WRITER=$DB_ENDPOINT_WRITER" >> $GITHUB_ENV
-      #     echo "AWS_SECRET_NAME=$AWS_SECRET_NAME" >> $GITHUB_ENV
-
-      # - name: get iam Details
-      #   id: set-env2
-      #   run: |
-      #     cd data/application_oidc/
-      #     terragrunt init
-      #     terragrunt output -json > tf_output.json
-      #     application_role=$(jq -r '.role_arn.value' tf_output.json)
-      #     echo "application_role=$application_role" >> $GITHUB_ENV
-      #     echo "$application_role"
-
-      # - name: get ECR Details
-      #   id: set-env3
-      #   run: |
-      #     cd data/ecr/
-      #     terragrunt init
-      #     terragrunt output -json > tf_output.json
-      #     repository=$(jq -r '.repository_url.value' tf_output.json)
-      #     echo "repository=$repository" >> $GITHUB_ENV
-          
-      # - name: get eks Details
-      #   id: set-eks
-      #   run: |
-      #     cd data/eks/
-      #     terragrunt init
-      #     terragrunt output -json > tf_output.json
-      #     clustername=$(jq -r '.cluster_name.value' tf_output.json)
-      #     echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
-          
-      # - name: get Cloudfront Details
-      #   run: |
-      #     cd data/cloudfront/
-      #     terragrunt init
-      #     terragrunt output -json > tf_output.json
-      #     ORIGIN_ID=$(jq -r '.cloudfront_distribution_id.value' tf_output.json)
-      #     echo "ORIGIN_ID=$ORIGIN_ID" >> $GITHUB_ENV
-
-     
-      # - name: Login to Amazon ECR
-      #   id: login-pf-aws-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
-        
-      # - name: Build and push the tagged docker image to Amazon ECR
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: ${{ env.repository }}
-      #   run: |
-      #     docker build -t  ${{ env.repository }}:${{ github.event.inputs.environment }}-v1.${{ github.run_number }} .
-      #     docker push  ${{ env.repository }}:${{ github.event.inputs.environment }}-v1.${{ github.run_number }}
-          
-      # - name: Deploy Helm
-      #   uses: bitovi/github-actions-deploy-eks-helm@v1.2.10
-      #   with:
-      #     cluster-name: ${{ env.CLUSTER_NAME }}
-      #     config-files: ./helm/values.yaml
-      #     chart-path: ./helm/
-      #     namespace: ${{ env.namespace }}
-      #     values: image.repository=${{ env.repository }},image.tag=${{ github.event.inputs.environment }}-v1.${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},secret.AWS_SECRET_NAME=${{ env.AWS_SECRET_NAME }},serviceAccount.arn=${{ env.application_role }}
-      #     name: backend
-
-      # - name: Get Load Balancer DNS
-      #   id: get_lb_dns
-      #   run: |
-      #     lb_arns=$(aws elbv2 describe-load-balancers --query "LoadBalancers[*].LoadBalancerArn" --output text)
-      #     for arn in $lb_arns; do
-      #       LB_ARN=$(aws elbv2 describe-tags --resource-arns $arn --query "TagDescriptions[?Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}']]" --output text | grep -q $arn && echo $arn)
-      #     done
-      #     echo "LB_ARN=$LB_ARN" >> $GITHUB_ENV
-      #     echo "$LB_ARN"
-      #     LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
-      #     echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
-      #     echo "$LB_DNS"
