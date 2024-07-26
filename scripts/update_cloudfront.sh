@@ -71,7 +71,7 @@ if [ -z "$existing_origin_id" ]; then
             "CustomOriginConfig": {
                 "HTTPPort": 80,
                 "HTTPSPort": 443,
-                "OriginProtocolPolicy": "https-only",
+                "OriginProtocolPolicy": "http-only",
                 "OriginSslProtocols": {
                     "Quantity": 1,
                     "Items": ["TLSv1.2"]
@@ -94,7 +94,7 @@ fi
 
 # Create a new cache behavior for the /backend path
 new_cache_behavior=$(jq -n \
-    --arg path_pattern "/backend/*" \
+    --arg path_pattern "/backend" \
     --arg origin_id "$new_origin_id" \
     '{
         "PathPattern": $path_pattern,
@@ -118,7 +118,7 @@ new_cache_behavior=$(jq -n \
             "Quantity": 0,
             "Items": []
         },
-        "ViewerProtocolPolicy": "redirect-to-https",
+        "ViewerProtocolPolicy": "allow-all",
         "MinTTL": 0,
         "DefaultTTL": 86400,
         "MaxTTL": 31536000,
