@@ -3,24 +3,17 @@ name: Backend CI
 on:
   workflow_dispatch:
     inputs:
-      resource_prefix:
-        description: 'Prefix for resource name'
+      namespace:
+        description: 'Namespace name'
         required: true
-        default: 'v2-boilerplate'
-      environment:
-        description: 'Environment name'
-        required: true
-        default: 'dev'
+        default: 'default'
         
 permissions:
   id-token: write
   contents: read
 
 env:
-  resource_prefix: ${{ github.event.inputs.resource_prefix }}
-  environment: ${{ github.event.inputs.environment }}
-
-
+  namespace: ${{ github.event.inputs.namespace }}
 
 jobs:
   build:
@@ -31,6 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: echos
+        run: |
+          echo ${{ vars.AWS_PRIMARY_REGION }}
+          echo arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.ROLE_NAME }}
+          
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -133,6 +131,6 @@ jobs:
           cluster-name: ${{ env.CLUSTER_NAME }}
           config-files: ./helm/values.yaml
           chart-path: ./helm/
-          namespace: default
+          namespace: ${{ env.namespace }}
           values: image.repository=${{ env.repository }},image.tag=${{ github.event.inputs.environment }}-v1.${{ github.run_number }},secret.DB_NAME=${{ env.DB_NAME }},secret.DB_ENDPOINT_READER=${{ env.DB_ENDPOINT_WRITER }},secret.DB_PORT=${{ env.DB_PORT }},secret.DB_ENDPOINT_WRITER=${{ env.DB_ENDPOINT_WRITER }},secret.AWS_SECRET_NAME=${{ env.AWS_SECRET_NAME }},serviceAccount.arn=${{ env.application_role }}
           name: backend
