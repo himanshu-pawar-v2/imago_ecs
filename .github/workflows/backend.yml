@@ -20,9 +20,13 @@ env:
   resource_prefix: ${{ github.event.inputs.resource_prefix }}
   environment: ${{ github.event.inputs.environment }}
 
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AWS_PRIMARY_REGION: ${{ vars.AWS_PRIMARY_REGION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,9 +34,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_SAGAR }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_SAGAR }}
-          aws-region: us-west-2
+          aws-region: ${{ env.AWS_PRIMARY_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.ROLE_NAME }}
+          role-session-name: GitHubActionsSession
 
       - name: Setup Terraform v1.8.4
         uses: hashicorp/setup-terraform@v1
@@ -40,11 +44,6 @@ jobs:
           terraform_version: 1.8.4
           terraform_wrapper: false
 
-      - name: Setup Terraform version
-        run: terraform --version
-
-      - name: Setup Terraform wrapper path
-        run: which terraform
 
       - name: Setup Terragrunt version 0.58.13
         uses: autero1/action-terragrunt@v3
