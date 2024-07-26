@@ -115,7 +115,19 @@ new_cache_behavior=$(jq -n \
         "MaxTTL": 31536000,
         "Compress": true,
         "SmoothStreaming": false,
-        "FieldLevelEncryptionId": ""
+        "FieldLevelEncryptionId": "",
+        "AllowedMethods": {
+            "Quantity": 7,
+            "Items": [
+                "GET", "HEAD", "POST", "PUT", "PATCH", "OPTIONS", "DELETE"
+            ],
+            "CachedMethods": {
+                "Quantity": 2,
+                "Items": [
+                    "GET", "HEAD"
+                ]
+            }
+        }
     }')
 
 # Add the new cache behavior to the existing cache behaviors
