@@ -102,7 +102,7 @@ new_cache_behavior=$(jq -n \
             "Quantity": 0,
             "Items": []
         },
-        "ViewerProtocolPolicy": "http-and-https",
+        "ViewerProtocolPolicy": "allow-all",
         "MinTTL": 0,
         "DefaultTTL": 86400,
         "MaxTTL": 31536000,
