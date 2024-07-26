@@ -78,8 +78,10 @@ new_origin=$(jq -n \
     }')
 
 # Add the new origin to the existing origins in the distribution config
-current_origins=$(echo $distribution_config_json | jq '.Origins')
-updated_origins=$(echo $current_origins | jq --argjson new_origin "$new_origin" '.Items += [$new_origin] | .Quantity += 1')
+updated_config=$(echo $distribution_config_json | jq --argjson new_origin "$new_origin" '
+    .Origins.Items += [$new_origin] |
+    .Origins.Quantity = (.Origins.Items | length)
+')
 
 # Create a new cache behavior for the /backend path
 new_cache_behavior=$(jq -n \
@@ -116,21 +118,15 @@ new_cache_behavior=$(jq -n \
     }')
 
 # Add the new cache behavior to the existing cache behaviors
-current_cache_behaviors=$(echo $distribution_config_json | jq '.CacheBehaviors')
-updated_cache_behaviors=$(echo $current_cache_behaviors | jq --argjson new_cache_behavior "$new_cache_behavior" '.Items += [$new_cache_behavior] | .Quantity += 1')
-
-# Update the distribution config with the new origins and cache behaviors
-updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" --argjson updated_cache_behaviors "$updated_cache_behaviors" '
-    .Origins = $updated_origins | 
-    .CacheBehaviors = $updated_cache_behaviors | 
-    .DefaultCacheBehavior.FieldLevelEncryptionId = .DefaultCacheBehavior.FieldLevelEncryptionId // ""
+updated_config=$(echo $updated_config | jq --argjson new_cache_behavior "$new_cache_behavior" '
+    .CacheBehaviors.Items += [$new_cache_behavior] |
+    .CacheBehaviors.Quantity = (.CacheBehaviors.Items | length)
 ')
 
 # Apply the updated configuration to the CloudFront distribution
 aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
 
 echo "Updated CloudFront distribution $cloudfront_distribution_id with new origin $LB_DNS and new behavior for /backend path"
-
 # # Update the distribution config with the new origins
 # updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" '.Origins = $updated_origins')
 
