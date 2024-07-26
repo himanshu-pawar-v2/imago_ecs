@@ -41,25 +41,17 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/${{ secrets.ROLE_NAME }}
           role-session-name: GitHubActionsSession
 
-      - name: Get Load Balancer DNS
-        id: get_lb_dns
-        run: |
-          LB_ARN=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?contains(Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.resource_prefix }}-cluster-dev'])].LoadBalancerArn" --output text)
-          LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
-          # echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
-          echo $LB_DNS
-
-      # - name: Setup Terraform v1.8.4
-      #   uses: hashicorp/setup-terraform@v1
-      #   with:
-      #     terraform_version: 1.8.4
-      #     terraform_wrapper: false
+      - name: Setup Terraform v1.8.4
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.8.4
+          terraform_wrapper: false
 
 
-      # - name: Setup Terragrunt version 0.58.13
-      #   uses: autero1/action-terragrunt@v3
-      #   with:
-      #     terragrunt-version: 0.58.13
+      - name: Setup Terragrunt version 0.58.13
+        uses: autero1/action-terragrunt@v3
+        with:
+          terragrunt-version: 0.58.13
     
       # - name: get RDS Details
       #   id: set-env
@@ -104,14 +96,22 @@ jobs:
       #     repository=$(jq -r '.repository_url.value' tf_output.json)
       #     echo "repository=$repository" >> $GITHUB_ENV
           
-      # - name: get eks Details
-      #   id: set-eks
-      #   run: |
-      #     cd data/eks/
-      #     terraform init
-      #     terraform output -json > tf_output.json
-      #     clustername=$(jq -r '.cluster_name.value' tf_output.json)
-      #     echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
+      - name: get eks Details
+        id: set-eks
+        run: |
+          cd data/eks/
+          terraform init
+          terraform output -json > tf_output.json
+          clustername=$(jq -r '.cluster_name.value' tf_output.json)
+          echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
+
+       - name: Get Load Balancer DNS
+         id: get_lb_dns
+         run: |
+           LB_ARN=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?contains(Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}'])].LoadBalancerArn" --output text)
+           LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
+           # echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
+           echo $LB_DNS
           
       # - name: get all details
       #   id: getenv
