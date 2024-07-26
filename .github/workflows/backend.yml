@@ -104,24 +104,16 @@ jobs:
           terraform output -json > tf_output.json
           clustername=$(jq -r '.cluster_name.value' tf_output.json)
           echo "CLUSTER_NAME=$clustername" >> $GITHUB_ENV
-
-       - name: Get Load Balancer DNS
-        id: get_lb_dns
-        run: |
-          LB_ARN=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?contains(Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${{ env.CLUSTER_NAME }}'])].LoadBalancerArn" --output text)
-          LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns $LB_ARN --query "LoadBalancers[0].DNSName" --output text)
-          # echo "LB_DNS=$LB_DNS" >> $GITHUB_ENV
-          echo $LB_DNS
           
-      # - name: get all details
-      #   id: getenv
-      #   run: |
-      #     echo "DB_NAME:  ${{ env.DB_NAME }}"
-      #     echo "DB_ENDPOINT_READER: ${{ env.DB_ENDPOINT_READER }}"
-      #     echo "DB_PORT: ${{ env.DB_PORT }}"
-      #     echo "DB_ENDPOINT_WRITER: ${{ env.DB_ENDPOINT_WRITER }}"
-      #     echo "AWS_SECRET_NAME: ${{ env.AWS_SECRET_NAME }}"
-      #     echo "repository: ${{ env.repository }}"
+      - name: get all details
+        id: getenv
+        run: |
+          echo "DB_NAME:  ${{ env.DB_NAME }}"
+          echo "DB_ENDPOINT_READER: ${{ env.DB_ENDPOINT_READER }}"
+          echo "DB_PORT: ${{ env.DB_PORT }}"
+          echo "DB_ENDPOINT_WRITER: ${{ env.DB_ENDPOINT_WRITER }}"
+          echo "AWS_SECRET_NAME: ${{ env.AWS_SECRET_NAME }}"
+          echo "repository: ${{ env.repository }}"
           
       # - name: Login to Amazon ECR
       #   id: login-pf-aws-ecr
