@@ -114,13 +114,23 @@ new_cache_behavior=$(jq -n \
         "DefaultTTL": 86400,
         "MaxTTL": 31536000,
         "Compress": true,
-        "SmoothStreaming": false
+        "SmoothStreaming": false,
+        "FieldLevelEncryptionId": ""
     }')
 
 # Add the new cache behavior to the existing cache behaviors
 updated_config=$(echo $updated_config | jq --argjson new_cache_behavior "$new_cache_behavior" '
     .CacheBehaviors.Items += [$new_cache_behavior] |
     .CacheBehaviors.Quantity = (.CacheBehaviors.Items | length)
+')
+
+# Ensure FieldLevelEncryptionId is present in DefaultCacheBehavior
+updated_config=$(echo $updated_config | jq '
+    if .DefaultCacheBehavior.FieldLevelEncryptionId == null then
+        .DefaultCacheBehavior.FieldLevelEncryptionId = ""
+    else
+        .
+    end
 ')
 
 # Apply the updated configuration to the CloudFront distribution
