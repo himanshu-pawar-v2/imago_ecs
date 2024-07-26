@@ -51,37 +51,46 @@ etag=$(echo $distribution_config | jq -r '.ETag')
 # Extract the current distribution configuration JSON
 distribution_config_json=$(echo $distribution_config | jq -r '.DistributionConfig')
 
-# Create a new origin configuration for the load balancer
-new_origin_id="custom-origin-$RANDOM"
-new_origin=$(jq -n \
-    --arg id "$new_origin_id" \
-    --arg domain "$LB_DNS" \
-    '{
-        "Id": $id,
-        "DomainName": $domain,
-        "OriginPath": "",
-        "CustomHeaders": {
-            "Quantity": 0,
-            "Items": []
-        },
-        "CustomOriginConfig": {
-            "HTTPPort": 80,
-            "HTTPSPort": 443,
-            "OriginProtocolPolicy": "https-only",
-            "OriginSslProtocols": {
-                "Quantity": 1,
-                "Items": ["TLSv1.2"]
-            },
-            "OriginReadTimeout": 30,
-            "OriginKeepaliveTimeout": 5
-        }
-    }')
+# Check if an origin for this load balancer already exists
+existing_origin_id=$(echo $distribution_config_json | jq -r --arg lb_dns "$LB_DNS" '.Origins.Items[] | select(.DomainName == $lb_dns) | .Id')
 
-# Add the new origin to the existing origins in the distribution config
-updated_config=$(echo $distribution_config_json | jq --argjson new_origin "$new_origin" '
-    .Origins.Items += [$new_origin] |
-    .Origins.Quantity = (.Origins.Items | length)
-')
+if [ -z "$existing_origin_id" ]; then
+    # Create a new origin configuration for the load balancer
+    new_origin_id="custom-origin-$RANDOM"
+    new_origin=$(jq -n \
+        --arg id "$new_origin_id" \
+        --arg domain "$LB_DNS" \
+        '{
+            "Id": $id,
+            "DomainName": $domain,
+            "OriginPath": "",
+            "CustomHeaders": {
+                "Quantity": 0,
+                "Items": []
+            },
+            "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "https-only",
+                "OriginSslProtocols": {
+                    "Quantity": 1,
+                    "Items": ["TLSv1.2"]
+                },
+                "OriginReadTimeout": 30,
+                "OriginKeepaliveTimeout": 5
+            }
+        }')
+
+    # Add the new origin to the existing origins in the distribution config
+    updated_config=$(echo $distribution_config_json | jq --argjson new_origin "$new_origin" '
+        .Origins.Items += [$new_origin] |
+        .Origins.Quantity = (.Origins.Items | length)
+    ')
+else
+    echo "Origin for load balancer $LB_DNS already exists with ID: $existing_origin_id"
+    new_origin_id=$existing_origin_id
+    updated_config=$distribution_config_json
+fi
 
 # Create a new cache behavior for the /backend path
 new_cache_behavior=$(jq -n \
@@ -157,7 +166,7 @@ updated_config=$(echo $updated_config | jq '
 # Apply the updated configuration to the CloudFront distribution
 aws cloudfront update-distribution --id "$cloudfront_distribution_id" --if-match "$etag" --distribution-config "$(echo $updated_config | jq -c .)"
 
-echo "Updated CloudFront distribution $cloudfront_distribution_id with new origin $LB_DNS and new behavior for /backend path"
+echo "Updated CloudFront distribution $cloudfront_distribution_id with origin $new_origin_id and new behavior for /backend path"
 # # Update the distribution config with the new origins
 # updated_config=$(echo $distribution_config_json | jq --argjson updated_origins "$updated_origins" '.Origins = $updated_origins')
 
