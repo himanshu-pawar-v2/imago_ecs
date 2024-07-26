@@ -52,8 +52,9 @@ etag=$(echo $distribution_config | jq -r '.ETag')
 distribution_config_json=$(echo $distribution_config | jq -r '.DistributionConfig')
 
 # Create a new origin configuration for the load balancer
+new_origin_id="custom-origin-$RANDOM"
 new_origin=$(jq -n \
-    --arg id "custom-origin-$RANDOM" \
+    --arg id "$new_origin_id" \
     --arg domain "$LB_DNS" \
     '{
         "Id": $id,
@@ -83,7 +84,7 @@ updated_origins=$(echo $current_origins | jq --argjson new_origin "$new_origin" 
 # Create a new cache behavior for the /backend path
 new_cache_behavior=$(jq -n \
     --arg path_pattern "/backend/*" \
-    --arg origin_id "$id" \
+    --arg origin_id "$new_origin_id" \
     '{
         "PathPattern": $path_pattern,
         "TargetOriginId": $origin_id,
