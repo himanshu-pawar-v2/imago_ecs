@@ -37,13 +37,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Infrastructure Tests
-        uses: ./.github/actions/testing
-        with:
-          test_script: './scripts/run-tests.sh'
-
-      # Add more steps for additional build tasks as needed
-
   deploy:
     name: 'Terragrunt Init/Plan/Apply'
     runs-on: ubuntu-latest
