@@ -56,7 +56,8 @@ jobs:
         env:
           RESOURCE_PREFIX: v2-sbp
           ENVIRONMENT: ${{ github.event.inputs.environment }}
-        run: ./scripts/update_cloudfront.sh $RESOURCE_PREFIX $ENVIRONMENT
+          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+        run: ./scripts/update_cloudfront.sh $RESOURCE_PREFIX $ENVIRONMENT $ACCOUNT_ID
     
       # - name: get RDS Details
       #   id: set-env

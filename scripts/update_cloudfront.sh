@@ -3,6 +3,7 @@ set -e
 
 RESOURCE_PREFIX=$1
 ENVIRONMENT=$2
+ACCOUNT_ID=$3
 
 TAG_KEY="elbv2.k8s.aws/cluster"
 TAG_VALUE="${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}"
@@ -23,7 +24,7 @@ fi
 distribution_ids=$(aws cloudfront list-distributions --query "DistributionList.Items[].Id" --output text)
 
 for distribution_id in $distribution_ids; do
-    tags=$(aws cloudfront list-tags-for-resource --resource "arn:aws:cloudfront::YOUR_ACCOUNT_ID:distribution/$distribution_id" --query "Tags.Items[?Key=='Environment'].Value" --output text)
+    tags=$(aws cloudfront list-tags-for-resource --resource "arn:aws:cloudfront::${ACCOUNT_ID}:distribution/$distribution_id" --query "Tags.Items[?Key=='Environment'].Value" --output text)
     
     if [[ "$tags" == "production" ]]; then
         echo "Found production distribution: $distribution_id"
