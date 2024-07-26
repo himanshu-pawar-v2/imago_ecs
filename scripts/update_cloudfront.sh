@@ -96,6 +96,10 @@ new_cache_behavior=$(jq -n \
             "Headers": {
                 "Quantity": 0,
                 "Items": []
+            },
+            "QueryStringCacheKeys": {
+                "Quantity": 0,
+                "Items": []
             }
         },
         "TrustedSigners": {
