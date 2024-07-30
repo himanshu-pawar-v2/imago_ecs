@@ -6,7 +6,7 @@ ENVIRONMENT=$2
 ACCOUNT_ID=$3
 
 TAG_KEY="elbv2.k8s.aws/cluster"
-TAG_VALUE="${RESOURCE_PREFIX}-cluster-${ENVIRONMENT}"
+TAG_VALUE="v2-boilerplate-cluster-dev"
 echo "Fetching Load Balancer with tag ${TAG_KEY}:${TAG_VALUE}"
 
 # Step 1: Fetch the load balancer ARN
