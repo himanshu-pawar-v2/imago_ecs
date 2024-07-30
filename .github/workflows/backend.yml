@@ -14,7 +14,7 @@ on:
       backend:
         description: 'backend bucket'
         required: true
-        default: 'v2-sbp-s3-state'
+        default: 'v2-boilerplate-s3-dev'
 permissions:
   id-token: write
   contents: read
