@@ -133,8 +133,8 @@ jobs:
           name: backend
 
       # Make the update_cloudfront.sh script executable
-      - name: Make update_cloudfront.sh executable
-        run: chmod +x scripts/update_cloudfront.sh
+      # - name: Make update_cloudfront.sh executable
+      #   run: chmod +x scripts/update_cloudfront.sh
 
       # Run the update_cloudfront.sh script
       - name: Update CloudFront Distribution
