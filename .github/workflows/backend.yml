@@ -137,9 +137,9 @@ jobs:
       #   run: chmod +x scripts/update_cloudfront.sh
 
       # Run the update_cloudfront.sh script
-      - name: Update CloudFront Distribution
-        env:
-          RESOURCE_PREFIX: v2-sbp
-          ENVIRONMENT: ${{ github.event.inputs.environment }}
-          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
-        run: ./scripts/update_cloudfront.sh $RESOURCE_PREFIX $ENVIRONMENT $ACCOUNT_ID
+      # - name: Update CloudFront Distribution
+      #   env:
+      #     RESOURCE_PREFIX: v2-sbp
+      #     ENVIRONMENT: ${{ github.event.inputs.environment }}
+      #     ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+      #   run: ./scripts/update_cloudfront.sh $RESOURCE_PREFIX $ENVIRONMENT $ACCOUNT_ID
